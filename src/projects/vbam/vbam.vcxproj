@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{22626CEC-B57E-45D5-8B26-CD7760AE1CF5}</ProjectGuid>
+    <ProjectGuid>{FF7B6135-68E5-433B-BA8F-47015FB88839}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Direct_Access_Image_Sample</RootNamespace>
   </PropertyGroup>
@@ -41,34 +41,43 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IntDir>$(SolutionDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IntDir>$(SolutionDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(SolutionDir)common</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)FreeImage</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /D "$(ProjectDir)FreeImage\*.dll" "$(OutDir)"
-xcopy /y /D "$(ProjectDir)Color_Target.jpg" "$(OutDir)"</Command>
+      <Command>xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(OutDir)"
+xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
+      <AdditionalIncludeDirectories>$(SolutionDir)common</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>$(SolutionDir)common</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -77,26 +86,25 @@ xcopy /y /D "$(ProjectDir)Color_Target.jpg" "$(OutDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /D "$(ProjectDir)FreeImage\*.dll" "$(OutDir)"
-xcopy /y /D "$(ProjectDir)Color_Target.jpg" "$(OutDir)"</Command>
+      <Command>xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(OutDir)"
+xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="Color_Target.jpg" />
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Direct_Access_Image.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="..\..\common\Direct_Access_Image.h" />
+    <ClInclude Include="..\..\common\stdafx.h" />
+    <ClInclude Include="..\..\common\targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Direct_Access_Image.cpp" />
-    <ClCompile Include="Direct_Access_Image_Sample.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\common\Direct_Access_Image.cpp" />
+    <ClCompile Include="..\..\common\stdafx.cpp" />
+    <ClCompile Include="vbam_main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\common\Color_Target.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
