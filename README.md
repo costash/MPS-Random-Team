@@ -3,6 +3,30 @@ Random-Team
 
 Semigrupa 2013, Vineri, 12-14
 
+Team structure
+--------------
+
+__Bam 1__
+
+* Constantin-Alexandru Tudorică - Developement
+* Mircea Gîlcă - Research
+* Alina Marcu - Testing
+  
+__Bam 2__
+* Cristian Pălășanu
+* Alin Preda
+
+__VBam__
+* Constantin Serban-Rădoi - Development
+* Gabriel Ivănică - Testing
+* Radu Iacob - Research
+
+
+Management structure
+--------------------
+
+* Constantin-Alexandru Tudorică - Project Manager
+* __TODO__
 
 Basic Git Workflow
 ------------------
