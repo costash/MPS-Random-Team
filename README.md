@@ -8,7 +8,7 @@ Team structure
 
 __Bam 1__
 
-* Constantin-Alexandru Tudorică - Developement
+* Constantin-Alexandru Tudorică - Development
 * Mircea Gîlcă - Research
 * Alina Marcu - Testing
   
@@ -17,7 +17,7 @@ __Bam 2__
 * Alin Preda
 
 __VBam__
-* Constantin Serban-Rădoi - Development
+* Constantin Șerban-Rădoi - Development
 * Gabriel Ivănică - Testing
 * Radu Iacob - Research
 
