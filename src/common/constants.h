@@ -14,12 +14,14 @@
 //===========================================================================
 
 // The exit codes returned by BAM modules
-enum EXIT_CODES {
-	SUCCESS = 0,			// Actually anything >= 0 is SUCCESS
-	READ_ERR = 1,			// Something wrong happened when reading image
-	INPUT_IMAGE_ERR = 2,	// Something wrong with the input image
-	WRITE_ERR = 3,			// Something wrong happened when writing results
-	MEMORY_ERR = 4			// Not enough memory or memory fragmentation
+struct BAM_EXIT_CODE {
+    enum values {
+        SUCCESS = 0,			// Actually anything >= 0 is SUCCESS
+        READ_ERR = 1,			// Something wrong happened at reading image
+        INPUT_IMAGE_ERR = 2,	// Something wrong with the input image
+        WRITE_ERR = 3,			// Something wrong happened at writing output
+        MEMORY_ERR = 4			// Not enough memory or memory fragmentation
+    };
 };
 
 //===========================================================================
