@@ -1,7 +1,7 @@
 //===========================================================================
 //===========================================================================
 //===========================================================================
-//==   Direct_Access_Image_Sample.cpp  ==  Author: Costin-Anton BOIANGIU   ==
+//==   vbam.cpp                                                            ==
 //===========================================================================
 //===========================================================================
 //===========================================================================
@@ -18,9 +18,13 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
     //Verify command-line usage correctness
-    if (argc != 2)
+    if (argc != 7)
     {
-        _tprintf(_T("Use: %s <Input_Image_File_Name (24BPP True-Color)>\n"), argv[0]);
+        _tprintf(_T("Use: %s <timeout (miliseconds/pixel t1)>\n")
+            _T("\t\t<timeout for init and destroy (t2)>\n")
+            _T("\t\t<folder where BAM executables are found>\n")
+            _T("\t\t<input image name for BAM> <BAM output folder>\n")
+            _T("\t\t<output image name>\n"), argv[0]);
         return -1;
     }
 
