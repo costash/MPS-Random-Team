@@ -41,11 +41,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IntDir>$(SolutionDir)$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IntDir>$(SolutionDir)$(Configuration)\</IntDir>
+    <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -63,7 +63,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)FreeImage</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(OutDir)"
+      <Command>xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(IntDir)"
+xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(IntDir)"
+xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(OutDir)"
 xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -86,7 +88,9 @@ xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(OutDir)"
+      <Command>xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(IntDir)"
+xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(IntDir)"
+xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(OutDir)"
 xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
