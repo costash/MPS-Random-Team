@@ -30,6 +30,9 @@
     <ClInclude Include="..\..\common\constants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Bam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\common\Direct_Access_Image.cpp">
@@ -39,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="vbam_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Bam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
