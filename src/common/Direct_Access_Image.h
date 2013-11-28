@@ -544,7 +544,7 @@ public:
         }
     }
 
-    void SaveAs(const TCHAR* strFileName, unsigned intFormatType = SAVE_TIFF_DEFAULT);
+    BOOL SaveAs(const TCHAR* strFileName, unsigned intFormatType = SAVE_TIFF_DEFAULT);
 
     void Crop (int top, int bottom, int left, int right ); 
 

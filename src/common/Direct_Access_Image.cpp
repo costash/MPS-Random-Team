@@ -21,7 +21,7 @@
 
 //===========================================================================
 //===========================================================================
-void KImage::SaveAs(const TCHAR* strFileName, unsigned intFormatType)
+BOOL KImage::SaveAs(const TCHAR* strFileName, unsigned intFormatType)
 {
     static int flag_vect[] = 
     {
@@ -76,7 +76,7 @@ void KImage::SaveAs(const TCHAR* strFileName, unsigned intFormatType)
         assert(intFormatType < SAVE_NO_FORMAT);
         // check for incorrect parameter
         if (intFormatType >= SAVE_NO_FORMAT)
-            return;
+            return false;
 
         int flag = flag_vect[intFormatType];
         FREE_IMAGE_FORMAT fif = format_vect[intFormatType];
@@ -85,6 +85,7 @@ void KImage::SaveAs(const TCHAR* strFileName, unsigned intFormatType)
         WORD bpp = WORD(FreeImage_GetBPP(this->fbit));
         if(FreeImage_FIFSupportsWriting(fif) && FreeImage_FIFSupportsExportBPP(fif, bpp))
             res = FreeImage_Save_Wrapper(fif, this->fbit, strFileName, flag);
+		return res;
 }
 //===========================================================================
 //===========================================================================
