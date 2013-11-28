@@ -18,10 +18,10 @@
 int _tmain(int argc, _TCHAR* argv[])
 {
     //Verify command-line usage correctness
-    if (argc != 2)
+    if (argc != 4)
     {
-        _tprintf(_T("Use: %s <Input_Image_File_Name (24BPP True-Color)>\n"), argv[0]);
-        return -1;
+        _tprintf(_T("Use: %s <Input_Image_File_Name (24BPP True-Color)> <Output_Image_File_Name (1BPP)> <Output_Image_Confidence_File_Name> \n"), argv[0]);
+        return -10;
     }
 
     //Buffer for the new file names
@@ -29,11 +29,17 @@ int _tmain(int argc, _TCHAR* argv[])
 
     //Load and verify that input image is a True-Color one
     KImage *pImage = new KImage(argv[1]);
-    if (pImage == NULL || !pImage->IsValid() || pImage->GetBPP() != 24)
+    if (pImage == NULL || !pImage->IsValid() )
     {
-        _tprintf(_T("File %s does is not a valid True-Color image!"), argv[0]);
-        return -2;
+        _tprintf(_T("File %s can't be read!"), argv[0]);
+        return -1;
     }
+
+	if (pImage->GetBPP() != 24)
+	{
+		_tprintf(_T("File %s does is not a valid True-Color image!"), argv[0]);
+        return -2;
+	}
     
     //Apply a Gaussian Blur with small radius to remove obvious noise
     pImage->GaussianBlur(0.5);
@@ -49,7 +55,7 @@ int _tmain(int argc, _TCHAR* argv[])
     if (pImageGrayscale == NULL || !pImageGrayscale->IsValid() || pImageGrayscale->GetBPP() != 8)
     {
         _tprintf(_T("Conversion to grayscale was not successfull!"));
-        return -3;
+        return -2;
     }
     //... and save grayscale image
     _stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s_grayscale.TIF"), argv[0]);
@@ -86,7 +92,7 @@ int _tmain(int argc, _TCHAR* argv[])
             pImageBinary->EndDirectAccess();
             
             //Save binarized image
-            _stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s_Black_and_White.TIF"), argv[0]);
+            _stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s"), argv[2]);
             pImageBinary->SaveAs(strNewFileName, SAVE_TIFF_CCITTFAX4);
 
             //Don't forget to delete the binary image
@@ -95,7 +101,7 @@ int _tmain(int argc, _TCHAR* argv[])
         else
         {
             _tprintf(_T("Unable to obtain direct access in binary image!"));
-            return -3;
+            return -30;
         }
 
         //Close direct access
@@ -104,7 +110,7 @@ int _tmain(int argc, _TCHAR* argv[])
     else
     {
         _tprintf(_T("Unable to obtain direct access in grayscale image!"));
-        return -4;
+        return -40;
     }
 
     //Don't forget to delete the grayscale image
