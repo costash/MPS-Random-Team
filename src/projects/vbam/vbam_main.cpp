@@ -15,14 +15,6 @@
 //===========================================================================
 //===========================================================================
 
-// Exit codes for VBAM
-struct VBAM_EXIT {
-	enum values {
-		SUCCESS = 0,    // Case of success
-		ARGS_ERR = 1    // Not enough args
-	};
-};
-
 //===========================================================================
 //===========================================================================
 int _tmain(int argc, _TCHAR* argv[])
@@ -41,7 +33,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	// Buffer for the new file names
 	TCHAR strNewFileName[0x100];
 
-	Bam bam1(argv[4], _T("bam1.exe"));
+	Bam bam1(argv[3], _T("bam1.exe"));
+	bam1.Run(argv[4], argv[6], _T("a"));
 
 	// Load and verify that input image is a True-Color one
 	KImage *pImage = new KImage(argv[4]);
