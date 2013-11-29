@@ -4,6 +4,7 @@
     <LocalDebuggerCommandArguments>Color_Target.jpg</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(IntDir)</LocalDebuggerWorkingDirectory>
+    <LocalDebuggerDebuggerType>NativeOnly</LocalDebuggerDebuggerType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerCommandArguments>Color_Target.jpg</LocalDebuggerCommandArguments>
