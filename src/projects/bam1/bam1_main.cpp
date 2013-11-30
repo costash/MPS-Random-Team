@@ -101,6 +101,7 @@ int _tmain(int argc, _TCHAR* argv[])
         KImage *pImageBinary = new KImage(intWidth, intHeight, 1);
 		if (pImageBinary->BeginDirectAccess() && pImageConfidence->BeginDirectAccess() && (pDataMatrixConfidence = pImageConfidence->GetDataMatrix()) != NULL)
         {
+			
 			do_magic(intHeight, intWidth, pDataMatrixGrayscale, pDataMatrixConfidence, pImageBinary);
 
             //Close direct access
@@ -109,7 +110,17 @@ int _tmain(int argc, _TCHAR* argv[])
             
             //Save binarized image
             _stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s"), argv[2]);
-            pImageBinary->SaveAs(strNewFileName, SAVE_TIFF_CCITTFAX4);
+            if (!pImageBinary->SaveAs(strNewFileName, SAVE_TIFF_CCITTFAX4)) {
+				_tprintf(_T("Unable to save binary image: %s"), strNewFileName);
+				return -3;
+			}
+
+			//Save confidence image
+			_stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s"), argv[3]);
+			if (!pImageConfidence->SaveAs(strNewFileName, SAVE_TIFF_LZW)) {
+				_tprintf(_T("Unable to save confidence image: %s"), strNewFileName);
+				return -3;
+			}
 
             //Don't forget to delete the binary image
             delete pImageBinary;
