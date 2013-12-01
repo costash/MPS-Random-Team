@@ -10,6 +10,7 @@
 //===========================================================================
 #include "stdafx.h"
 #include "Direct_Access_Image.h"
+#include "constants.h"
 //===========================================================================
 //===========================================================================
 
@@ -40,7 +41,7 @@ int _tmain(int argc, _TCHAR* argv[])
     if (argc != 4)
     {
         _tprintf(_T("Use: %s <Input_Image_File_Name (24BPP True-Color)> <Output_Image_File_Name (1BPP)> <Output_Image_Confidence_File_Name> \n"), argv[0]);
-        return -10;
+		return BAM_EXIT_CODE::READ_ERR;
     }
 
     //Buffer for the new file names
@@ -51,13 +52,13 @@ int _tmain(int argc, _TCHAR* argv[])
     if (pImage == NULL || !pImage->IsValid() )
     {
         _tprintf(_T("File %s can't be read!"), argv[0]);
-        return -1;
+		return BAM_EXIT_CODE::READ_ERR;
     }
 
 	if (pImage->GetBPP() != 24)
 	{
 		_tprintf(_T("File %s does is not a valid True-Color image!"), argv[0]);
-        return -2;
+		return BAM_EXIT_CODE::INPUT_IMAGE_ERR;
 	}
     
     //Apply a Gaussian Blur with small radius to remove obvious noise
@@ -77,7 +78,7 @@ int _tmain(int argc, _TCHAR* argv[])
     if (pImageGrayscale == NULL || !pImageGrayscale->IsValid() || pImageGrayscale->GetBPP() != 8)
     {
         _tprintf(_T("Conversion to grayscale was not successfull!"));
-        return -2;
+        return BAM_EXIT_CODE::INPUT_IMAGE_ERR;
     }
 	KImage *pImageConfidence = new KImage(*pImageGrayscale);
 
@@ -112,14 +113,14 @@ int _tmain(int argc, _TCHAR* argv[])
             _stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s"), argv[2]);
             if (!pImageBinary->SaveAs(strNewFileName, SAVE_TIFF_CCITTFAX4)) {
 				_tprintf(_T("Unable to save binary image: %s"), strNewFileName);
-				return -3;
+				return BAM_EXIT_CODE::WRITE_ERR;
 			}
 
 			//Save confidence image
 			_stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s"), argv[3]);
 			if (!pImageConfidence->SaveAs(strNewFileName, SAVE_TIFF_LZW)) {
 				_tprintf(_T("Unable to save confidence image: %s"), strNewFileName);
-				return -3;
+				return BAM_EXIT_CODE::WRITE_ERR;
 			}
 
             //Don't forget to delete the binary image
@@ -129,7 +130,7 @@ int _tmain(int argc, _TCHAR* argv[])
         else
         {
             _tprintf(_T("Unable to obtain direct access in binary image!")); //Nu am idee de alta eroare
-            return -4;
+            return BAM_EXIT_CODE::MEMORY_ERR;
         }
 
         //Close direct access
@@ -138,14 +139,14 @@ int _tmain(int argc, _TCHAR* argv[])
     else
     {
         _tprintf(_T("Unable to obtain direct access in grayscale image!")); //Nu am idee de alta eroare
-        return -4;
+        return BAM_EXIT_CODE::MEMORY_ERR;
     }
 
     //Don't forget to delete the grayscale image
     delete pImageGrayscale;
 
     //Return with success
-    return 0;
+	return BAM_EXIT_CODE::SUCCESS;
 }
 //===========================================================================
 //===========================================================================
