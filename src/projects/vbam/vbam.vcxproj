@@ -50,7 +50,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PrecompiledHeader>Create</PrecompiledHeader>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
@@ -71,7 +71,7 @@ xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level4</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Create</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -103,11 +103,13 @@ xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
     <ClInclude Include="..\..\common\stdafx.h" />
     <ClInclude Include="..\..\common\targetver.h" />
     <ClInclude Include="Bam.h" />
+    <ClInclude Include="FileUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\common\Direct_Access_Image.cpp" />
     <ClCompile Include="..\..\common\stdafx.cpp" />
     <ClCompile Include="Bam.cpp" />
+    <ClCompile Include="FileUtil.cpp" />
     <ClCompile Include="vbam_main.cpp" />
   </ItemGroup>
   <ItemGroup>
