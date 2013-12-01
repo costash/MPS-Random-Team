@@ -32,9 +32,11 @@ int Bam::Run(const TCHAR* inputImageName, const TCHAR* outputImageName,
 {
 	TCHAR commandLine[MAX_CMD_LINE];
 	_stprintf_s(commandLine, sizeof(commandLine) / sizeof(TCHAR),
-		_T("%s %s"),
+		_T("%s %s %s %s"),
 		_fullPath,
-		inputImageName);
+		inputImageName,
+		outputImageName,
+		confidenceFileName);
 
 	STARTUPINFO si;
 	ZeroMemory(&si, sizeof(si));
