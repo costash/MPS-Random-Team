@@ -10,33 +10,36 @@
 #include "constants.h"
 
 
-Bam::Bam(const TCHAR* path, const TCHAR* executableName)
+Bam::Bam(const std::wstring& path, const std::wstring& executableName)
+	: _path(path), _exeName(executableName)
 {
-	createFullPath(path, executableName);
-	_tprintf_s(_T("fullpath={%s}\n"), _fullPath);
+	createFullPath();
+	if (_DEBUG)
+	{
+		_tprintf_s(_T("fullpath={%s}\n"), _fullPath.c_str());
+	}
 }
 
-void Bam::createFullPath(const TCHAR* path, const TCHAR* name)
+void Bam::createFullPath()
 {
 #ifdef _WIN32
-	TCHAR separator[2] = _T("\\");
+	std::wstring separator(_T("\\"));
 #else
-	TCHAR separator[2] = _T("/");
+	std::wstring separator(_T("/"));
 #endif
-	_stprintf_s(_fullPath, sizeof(_fullPath) / sizeof(TCHAR), _T("%s%s%s"),
-		path, separator, name);
+	_fullPath = _path + separator + _exeName;
 }
 
-int Bam::Run(const TCHAR* inputImageName, const TCHAR* outputImageName,
-		const TCHAR* confidenceFileName)
+int Bam::Run(const std::wstring& inputImageName, const std::wstring& outputImageName,
+		const std::wstring& confidenceFileName)
 {
 	TCHAR commandLine[MAX_CMD_LINE];
 	_stprintf_s(commandLine, sizeof(commandLine) / sizeof(TCHAR),
 		_T("%s %s %s %s"),
-		_fullPath,
-		inputImageName,
-		outputImageName,
-		confidenceFileName);
+		_fullPath.c_str(),
+		inputImageName.c_str(),
+		outputImageName.c_str(),
+		confidenceFileName.c_str());
 
 	STARTUPINFO si;
 	ZeroMemory(&si, sizeof(si));
@@ -66,5 +69,5 @@ int Bam::Run(const TCHAR* inputImageName, const TCHAR* outputImageName,
 	returnError = GetExitCodeProcess(pi.hProcess, &exitCode);
 	DIE(returnError == FALSE, _T("Could not get exit code for process"), VBAM_EXIT::GET_EXIT_CODE_ERR);
 
-	return 0;
+	return exitCode;
 }

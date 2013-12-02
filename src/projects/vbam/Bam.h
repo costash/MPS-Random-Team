@@ -14,21 +14,25 @@
 //===========================================================================
 #include "Direct_Access_Image.h"
 
+#include <string>
+
 // Class that holds the name of a BAM executable and can run it multiple
 // times on different images.
 class Bam
 {
 public:
-	Bam(const TCHAR* path, const TCHAR* executableName);
+	Bam(const std::wstring& path, const std::wstring& executableName);
 
-	int Run(const TCHAR* inputImageName, const TCHAR* outputImageName,
-		const TCHAR* confidenceFileName);
+	int Run(const std::wstring& inputImageName, const std::wstring& outputImageName,
+		const std::wstring& confidenceFileName);
 	
 private:
-	void createFullPath(const TCHAR* path, const TCHAR* name);
+	void createFullPath();
 
 private:
-	TCHAR _fullPath[0x100];
+	std::wstring _fullPath;
+	std::wstring _exeName;
+	std::wstring _path;
 };
 
 //===========================================================================
