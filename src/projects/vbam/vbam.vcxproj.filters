@@ -36,6 +36,9 @@
     <ClInclude Include="FileUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BamPool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\common\Direct_Access_Image.cpp">
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BamPool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
