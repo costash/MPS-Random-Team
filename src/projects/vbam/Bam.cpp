@@ -31,7 +31,7 @@ void Bam::createFullPath()
 }
 
 int Bam::Run(const std::wstring& inputImageName, const std::wstring& outputImageName,
-		const std::wstring& confidenceFileName)
+			 const std::wstring& confidenceFileName)
 {
 	TCHAR commandLine[MAX_CMD_LINE];
 	_stprintf_s(commandLine, sizeof(commandLine) / sizeof(TCHAR),
@@ -49,16 +49,16 @@ int Bam::Run(const std::wstring& inputImageName, const std::wstring& outputImage
 	ZeroMemory(&pi, sizeof(pi));
 
 	BOOL returnError = CreateProcess(
-			NULL,
-			commandLine,
-			NULL,
-			NULL,
-			TRUE,
-			0,
-			NULL,
-			NULL,
-			&si,
-			&pi);
+		NULL,
+		commandLine,
+		NULL,
+		NULL,
+		TRUE,
+		0,
+		NULL,
+		NULL,
+		&si,
+		&pi);
 
 	DIE(!returnError, _T("Process could not be created"), VBAM_EXIT::CREATE_PROCESS_ERR);
 
@@ -70,4 +70,9 @@ int Bam::Run(const std::wstring& inputImageName, const std::wstring& outputImage
 	DIE(returnError == FALSE, _T("Could not get exit code for process"), VBAM_EXIT::GET_EXIT_CODE_ERR);
 
 	return exitCode;
+}
+
+const std::wstring& Bam::ExecutableName()
+{
+	return _exeName;
 }

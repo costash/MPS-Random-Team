@@ -10,7 +10,8 @@
 
 #include "constants.h"
 
-int FileUtil::GetFilesInDir(TCHAR* dirName, TCHAR* extension, vector<wstring>& fileNames)
+int FileUtil::GetFilesInDir(const TCHAR* dirName, const TCHAR* extension,
+							vector<wstring>& fileNames)
 {
 	WIN32_FIND_DATAW findData;
 	HANDLE hFind;
@@ -63,12 +64,7 @@ int FileUtil::GetFilesInDir(TCHAR* dirName, TCHAR* extension, vector<wstring>& f
 		return errorCode;
 	}
 
-	if (FindClose(hFind) != 0)
-	{
-		PrintLastError(_T("FindClose"));
-		return errorCode;
-	}
-
-	return errorCode;
+	FindClose(hFind);
+	return SUCCESS;
 }
 

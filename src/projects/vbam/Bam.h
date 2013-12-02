@@ -25,7 +25,9 @@ public:
 
 	int Run(const std::wstring& inputImageName, const std::wstring& outputImageName,
 		const std::wstring& confidenceFileName);
-	
+
+	const std::wstring& ExecutableName();
+
 private:
 	void createFullPath();
 

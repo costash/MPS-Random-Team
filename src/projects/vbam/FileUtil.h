@@ -24,7 +24,8 @@ class FileUtil
 public:
 	// Returns all the files' names in the dirName directory which have the
 	// given extension in the fileNames array.
-	static int GetFilesInDir(TCHAR* dirName, TCHAR* extension, vector<wstring>& fileNames);
+	static int GetFilesInDir(const TCHAR* dirName, const TCHAR* extension,
+		vector<wstring>& fileNames);
 
 	enum Errors {
 		SUCCESS = 0,
