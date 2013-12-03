@@ -16,6 +16,7 @@
 
 #include "Bam.h"
 #include <vector>
+#include <map>
 
 class BamPool
 {
@@ -24,17 +25,20 @@ public:
 		const TCHAR* bamsFolder,
 		const TCHAR* inputImageName,
 		const TCHAR* outputFolder,
-		const TCHAR* outputImageName);
+		const TCHAR* outputName);
 
 	int Init(const TCHAR* vbamExecutableName);
 
+	void SpawnAll();
+	void Vote();
+
 private:
-	std::vector<Bam> _bams;
+	std::map<std::wstring, std::unique_ptr<Bam>> _bams;
 	std::vector<std::wstring> _bamNames;
 	std::wstring _bamsFolder;
 	std::wstring _inputImageName;
 	std::wstring _outputFolder;
-	std::wstring _outputImageName;
+	std::wstring _outputName;
 };
 
 #endif // __POOL_POOL__H__

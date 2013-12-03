@@ -23,18 +23,29 @@ class Bam
 public:
 	Bam(const std::wstring& path, const std::wstring& executableName);
 
-	int Run(const std::wstring& inputImageName, const std::wstring& outputImageName,
-		const std::wstring& confidenceFileName);
+	int Run(const std::wstring& inputImageName);
 
 	const std::wstring& ExecutableName();
+	
+	enum LastRunStatus {
+		NOT_EXECUTED = -1,
+		EXECUTED_SUCCESSFULLY = 0,
+		EXECUTED_WITH_ERROR = 1
+	};
+
+	int LastRunStatus();
 
 private:
 	void createFullPath();
+	void createOutputNames(const std::wstring& inputName);
 
 private:
 	std::wstring _fullPath;
 	std::wstring _exeName;
 	std::wstring _path;
+	std::wstring _lastRunOutputImageName;
+	std::wstring _lastRunConfidenceFileName;
+	int _lastRunStatus;
 };
 
 //===========================================================================

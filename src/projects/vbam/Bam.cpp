@@ -11,7 +11,8 @@
 
 
 Bam::Bam(const std::wstring& path, const std::wstring& executableName)
-	: _path(path), _exeName(executableName)
+	: _path(path), _exeName(executableName), _lastRunStatus(NOT_EXECUTED),
+	_lastRunOutputImageName(_T("")), _lastRunConfidenceFileName(_T(""))
 {
 	createFullPath();
 	if (_DEBUG)
@@ -30,16 +31,17 @@ void Bam::createFullPath()
 	_fullPath = _path + separator + _exeName;
 }
 
-int Bam::Run(const std::wstring& inputImageName, const std::wstring& outputImageName,
-			 const std::wstring& confidenceFileName)
+int Bam::Run(const std::wstring& inputImageName)
 {
+	createOutputNames(inputImageName);
+
 	TCHAR commandLine[MAX_CMD_LINE];
 	_stprintf_s(commandLine, sizeof(commandLine) / sizeof(TCHAR),
 		_T("%s %s %s %s"),
 		_fullPath.c_str(),
 		inputImageName.c_str(),
-		outputImageName.c_str(),
-		confidenceFileName.c_str());
+		_lastRunOutputImageName.c_str(),
+		_lastRunConfidenceFileName.c_str());
 
 	STARTUPINFO si;
 	ZeroMemory(&si, sizeof(si));
@@ -69,10 +71,26 @@ int Bam::Run(const std::wstring& inputImageName, const std::wstring& outputImage
 	returnError = GetExitCodeProcess(pi.hProcess, &exitCode);
 	DIE(returnError == FALSE, _T("Could not get exit code for process"), VBAM_EXIT::GET_EXIT_CODE_ERR);
 
+	_lastRunStatus = exitCode == VBAM_EXIT::SUCCESS ? Bam::EXECUTED_SUCCESSFULLY : Bam::EXECUTED_WITH_ERROR;
 	return exitCode;
 }
+
+void Bam::createOutputNames(const std::wstring& inputName)
+{
+	_lastRunOutputImageName = _exeName + _T("_") + inputName + _T(".TIF");
+	_lastRunConfidenceFileName = _exeName + _T("_") + inputName + _T("_conf.TIF");
+}
+
+//=============================================================================
+//== Getters                                                                 ==
+//=============================================================================
 
 const std::wstring& Bam::ExecutableName()
 {
 	return _exeName;
+}
+
+int Bam::LastRunStatus()
+{
+	return _lastRunStatus;
 }
