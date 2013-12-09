@@ -100,6 +100,7 @@ xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
   <ItemGroup>
     <ClInclude Include="..\..\common\constants.h" />
     <ClInclude Include="..\..\common\Direct_Access_Image.h" />
+    <ClInclude Include="..\..\common\Matrix.h" />
     <ClInclude Include="..\..\common\stdafx.h" />
     <ClInclude Include="..\..\common\targetver.h" />
     <ClInclude Include="Bam.h" />

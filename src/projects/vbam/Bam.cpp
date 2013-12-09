@@ -94,3 +94,13 @@ int Bam::LastRunStatus()
 {
 	return _lastRunStatus;
 }
+
+const std::wstring& Bam::LastRunOutputImageName()
+{
+	return _lastRunOutputImageName;
+}
+
+const std::wstring& Bam::LastRunConfidenceFileName()
+{
+	return _lastRunConfidenceFileName;
+}
