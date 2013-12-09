@@ -35,6 +35,9 @@ public:
 
 	int LastRunStatus();
 
+	const std::wstring& LastRunOutputImageName();
+	const std::wstring& LastRunConfidenceFileName();
+
 private:
 	void createFullPath();
 	void createOutputNames(const std::wstring& inputName);

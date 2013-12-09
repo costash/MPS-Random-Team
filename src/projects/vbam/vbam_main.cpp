@@ -34,6 +34,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	BamPool pool(argv[3], argv[4], argv[5], argv[6]);
 	pool.Init(argv[0]);
 	pool.SpawnAll();
+	pool.Vote();
 
 	// Return with success
 	return VBAM_EXIT::SUCCESS;
