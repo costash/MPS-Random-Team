@@ -55,12 +55,13 @@ int BamPool::Init(const TCHAR* vbamExecutableName)
 	return returnCode;
 }
 
-void BamPool::SpawnAll()
+void BamPool::SpawnAll(const TCHAR* processingTimeout, const TCHAR* initTimeout)
 {
+	unsigned int timeout = composeTimeout(processingTimeout, initTimeout);
 	for (unsigned int i = 0; i < _bamNames.size(); ++i)
 	{
 		_bams[_bamNames[i]].reset(new Bam(_bamsFolder, _bamNames[i]));
-		_bams[_bamNames[i]].get()->Run(_inputImageName);
+		_bams[_bamNames[i]].get()->Run(_inputImageName, timeout);
 	}
 }
 
@@ -139,6 +140,7 @@ void BamPool::Vote()
 		confidenceImage.get()->EndDirectAccess();
 	}
 
+	// Create the final output image
 	std::unique_ptr<KImage> votedOutput(new KImage(width, height, 1));
 	if (votedOutput.get()->BeginDirectAccess())
 	{
@@ -161,3 +163,16 @@ void BamPool::Vote()
 	votedOutput.get()->EndDirectAccess();
 }
 
+unsigned int BamPool::composeTimeout(const TCHAR* processingTimeout, const TCHAR* initTimeout)
+{
+	std::wstring processing(processingTimeout);
+	std::wstring init(initTimeout);
+
+	unsigned int processingMilisec = stoul(processingTimeout);
+	unsigned int initMilisec = stoul(initTimeout);
+
+	std::unique_ptr<KImage> input(new KImage(_inputImageName.c_str()));
+	int pixels = input.get()->GetWidth() * input.get()->GetHeight();
+
+	return pixels * processingMilisec + initMilisec;
+}

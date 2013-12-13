@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LocalDebuggerCommandArguments>100 100 . Color_Target.jpg . OUTPUT</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>1 100 . Color_Target.jpg . OUTPUT</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerWorkingDirectory>$(IntDir)</LocalDebuggerWorkingDirectory>
   </PropertyGroup>

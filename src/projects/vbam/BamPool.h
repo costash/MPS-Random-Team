@@ -29,8 +29,12 @@ public:
 
 	int Init(const TCHAR* vbamExecutableName);
 
-	void SpawnAll();
+	void SpawnAll(const TCHAR* processingTimeout, const TCHAR* initTimeout);
 	void Vote();
+
+private:
+	unsigned int composeTimeout(const TCHAR* processingTimeout,
+		const TCHAR* initTimeout);
 
 private:
 	std::map<std::wstring, std::unique_ptr<Bam>> _bams;

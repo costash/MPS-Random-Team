@@ -23,7 +23,7 @@ class Bam
 public:
 	Bam(const std::wstring& path, const std::wstring& executableName);
 
-	int Run(const std::wstring& inputImageName);
+	int Run(const std::wstring& inputImageName, const unsigned int timeout);
 
 	const std::wstring& ExecutableName();
 	

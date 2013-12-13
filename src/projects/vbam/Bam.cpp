@@ -31,7 +31,7 @@ void Bam::createFullPath()
 	_fullPath = _path + separator + _exeName;
 }
 
-int Bam::Run(const std::wstring& inputImageName)
+int Bam::Run(const std::wstring& inputImageName, const unsigned int timeout)
 {
 	createOutputNames(inputImageName);
 
@@ -64,8 +64,14 @@ int Bam::Run(const std::wstring& inputImageName)
 
 	DIE(!returnError, _T("Process could not be created"), VBAM_EXIT::CREATE_PROCESS_ERR);
 
-	DWORD waitResult = WaitForSingleObject(pi.hProcess, INFINITE);
+	DWORD waitResult = WaitForSingleObject(pi.hProcess, timeout);
 	DIE(waitResult == WAIT_FAILED, _T("Waiting for process failed"), VBAM_EXIT::WAIT_PROCESS_ERR);
+
+	if (waitResult == WAIT_TIMEOUT)
+	{
+		_ftprintf_s(stderr, _T("Bam %s exceeded time limit of %d", commandLine, timeout));
+		return BAM_EXIT_CODE::TIMEOUT;
+	}
 
 	DWORD exitCode;
 	returnError = GetExitCodeProcess(pi.hProcess, &exitCode);
