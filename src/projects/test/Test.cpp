@@ -9,26 +9,51 @@
 #include "Test.h"
 #include "constants.h"
 
-wstring TESSERACT(L"..\\..\\tesseract\\tesseract");
-wstring TEST_IMG_DIR(L"..\\..\\images\\");
-wstring OUTPUT_DIR(L"..\\..\\output\\");
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <map>
+
+using namespace std;
+
+wstring TESSERACT(_T("..\\tesseract\\tesseract"));
+
+wstring ORIGINAL_IMG_DIR(_T("..\\images\\"));
+wstring ORIGINAL_OUTPUT_DIR(_T("..\\test\\tesseract\\"));
+
+wstring BAM_SOURCE_DIR(_T("..\\output\\"));
+wstring BAM_OUTPUT_DIR(_T("..\\test\\bam\\"));
 
 Test::Test(const wstring& path)
 	: _path(path)
 {
 }
 
-int Test::Run()
+int Test::runOCR(SOURCE source)
 {
+	wstring IMG_DIR;
+	wstring OUTPUT_DIR;
+
+	if (source == ORIGNIAL_IMG) {
+		IMG_DIR = ORIGINAL_IMG_DIR;
+		OUTPUT_DIR = ORIGINAL_OUTPUT_DIR;
+	}
+	else {
+		IMG_DIR = BAM_SOURCE_DIR;
+		OUTPUT_DIR = BAM_OUTPUT_DIR;
+	}
 
 	TCHAR commandLine[MAX_CMD_LINE];
 	_stprintf_s(commandLine, sizeof(commandLine) / sizeof(TCHAR),
 		_T("%s %s%s %s%s"), TESSERACT.c_str(),
-		TEST_IMG_DIR.c_str(), _path.c_str(),
+		IMG_DIR.c_str(), _path.c_str(),
 		OUTPUT_DIR.c_str(), _path.c_str());
 
 	if (_DEBUG)
 		_tprintf_s(_T("command: %s\n"), commandLine);
+
+	cout << "=========================================================" << endl;
+	cout << "Analysing images with TESSERACT" << endl;
 
 	STARTUPINFO si;
 	ZeroMemory(&si, sizeof(si));
@@ -59,4 +84,68 @@ int Test::Run()
 	DIE(returnError == FALSE, _T("Could not get exit code for process"), VBAM_EXIT::GET_EXIT_CODE_ERR);
 
 	return exitCode;
+}
+
+void Test::computeScore() {
+
+	char word[100];
+	int size = 0;
+	int correct = 0;
+	int wrong = 0;
+	map<string, int> dict;
+	map<string, int>::iterator it;
+
+	TCHAR original_filename[MAX_CMD_LINE];
+	TCHAR bam_filename[MAX_CMD_LINE];
+
+	_stprintf_s(original_filename, sizeof(original_filename) / sizeof(TCHAR),
+		_T("%s%s.txt"), ORIGINAL_OUTPUT_DIR.c_str(), _path.c_str());
+
+	_stprintf_s(bam_filename, sizeof(bam_filename) / sizeof(TCHAR),
+		_T("%s%s.txt"), BAM_OUTPUT_DIR.c_str(), _path.c_str());
+
+
+	FILE *FO, *FB;
+	_wfopen_s(&FO, original_filename, _T("r"));
+	_wfopen_s(&FB, bam_filename, _T("r"));
+
+	if (FO && FB) {
+		cout << "Computing image scores" << endl;
+	}
+	else {
+		if (!FO)
+			cout << "File not found " << original_filename << endl;
+		if (!FB)
+			cout << "File not found " << bam_filename << endl;
+		return;
+	}
+	cout << "---------------------------------------------------------" << endl;
+
+	while (!feof(FO)) {
+		fscanf_s(FO, "%s", word, 100);
+		dict[word]++;
+		size++;
+	}
+
+	while (!feof(FB)) {
+		fscanf_s(FB, "%s", word, 100);
+		it = dict.find(word);
+		if (it != dict.end() && it->second > 0) {
+			it->second--;
+			correct++;
+		}
+		else {
+			wrong++;
+		}
+	}
+
+	//for (it=dict.begin(); it!=dict.end(); it++) {
+	//	if (it->second)
+	//	cout << it->first << " = " << it->second << endl;
+	//}
+
+	int success = (correct * 100) / size;
+	printf("\tcorrect: \t %d%% (%d / %d words)\n", success, correct, size);
+	cout << endl;
+
 }

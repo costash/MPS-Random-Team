@@ -18,13 +18,18 @@
 
 using namespace std;
 
+enum SOURCE {
+	ORIGNIAL_IMG,
+	BAM_IMG
+};
 
 class Test
 {
 public:
 	Test(const std::wstring& path);
 
-	int Run();
+	int runOCR(SOURCE source);
+	void computeScore();
 
 private:
 	std::wstring _fullPath;
