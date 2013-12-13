@@ -168,11 +168,11 @@ unsigned int BamPool::composeTimeout(const TCHAR* processingTimeout, const TCHAR
 	std::wstring processing(processingTimeout);
 	std::wstring init(initTimeout);
 
-	unsigned int processingMilisec = stoul(processingTimeout);
+	float processingMilisec = stof(processingTimeout);
 	unsigned int initMilisec = stoul(initTimeout);
 
 	std::unique_ptr<KImage> input(new KImage(_inputImageName.c_str()));
 	int pixels = input.get()->GetWidth() * input.get()->GetHeight();
 
-	return pixels * processingMilisec + initMilisec;
+	return (unsigned int) (pixels * processingMilisec) + initMilisec;
 }
