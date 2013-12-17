@@ -6,15 +6,25 @@
 //===========================================================================
 //===========================================================================
 
+#ifndef _DEBUG
+	#define _DEBUG 0
+#endif
+
 //===========================================================================
 //===========================================================================
 #include "stdafx.h"
 #include "Direct_Access_Image.h"
 #include "constants.h"
+#include <cstring>
+#include <opencv2\core\core.hpp>
+#include <opencv2\imgproc\imgproc.hpp>
+#include <opencv2\highgui\highgui.hpp>
 //===========================================================================
 //===========================================================================
 
-void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary) {
+using namespace cv;
+
+void do_magic2(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary) {
 	//Apply a threshold at half the grayscale range (0x00 is Full-Black, 0xFF is Full-White, 0x80 is the Middle-Gray)
 	for (int y = intHeight - 1; y >= 0; y--)
 		for (int x = intWidth - 1; x >= 0; x--)
@@ -31,6 +41,46 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 		}
 }
 
+//double std_dev(int x, int y, int sz, int intHeight, int intWidth, BYTE **pDataMatrixGrayscale) {
+//	int i, j;
+//	for (j = -sz; j < sz && j+x < ; ++i)
+//		for (j = -sz; j < sz; ++j)
+//			if (x+i < 0 || x+i >= intHeight)
+//
+//
+//}
+
+void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary) {
+	BYTE* t = (BYTE*)calloc(intHeight*intWidth,sizeof(unsigned char));
+	for (int y = 0; y < intHeight; ++y)
+		for (int x = 0; x < intWidth; ++x)
+			t[y*intWidth+x] = pDataMatrixConfidence[y][x];
+	Mat te(intHeight, intWidth, CV_8UC1, t);
+	Mat img(intHeight, intWidth, CV_32FC1);
+	Mat out3(intHeight, intWidth, CV_32FC1);
+	Mat out2(intHeight, intWidth, CV_32FC1);
+	Mat out(intHeight, intWidth, CV_32FC1);
+	Mat temp(intHeight, intWidth, CV_32FC1);
+	Mat kern(11,11, CV_32FC1, Scalar(1./121));
+	te.convertTo(img, CV_32FC1, 1./255);
+	///Mat kern2(11,11, CV_32FC1, Scalar(1./121));
+	//kern.at<float>(5,5) = 1;
+	//normalize(img,img);
+	filter2D(img, out, -1, kern);
+	
+	pow(img, 2, temp);
+	filter2D(temp, out2, -1, kern);
+	sqrt(out2, out2);
+	double M, R;
+	minMaxIdx(img, &M, &R);
+	compare(out*0.5 + 0.5*M+0.5*(out2 * (1/R)).mul(out-M), img, out3, CMP_LE);
+
+	//threshold(img, out,2,255, THRESH_BINARY|THRESH_OTSU);
+	namedWindow("Display Window", CV_WINDOW_AUTOSIZE);
+	imshow("Display Window", out3);
+	waitKey(0);
+	free(t);
+}
 
 
 //===========================================================================
@@ -63,10 +113,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//Apply a Gaussian Blur with small radius to remove obvious noise
 	pImage->GaussianBlur(0.5);
-	if (_DEBUG) {
-		_stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s_blurred.TIF"), argv[0]);
-		pImage->SaveAs(strNewFileName, SAVE_TIFF_LZW);
-	}
+#ifdef _DEBUG
+	_stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s_blurred.TIF"), argv[0]);
+	pImage->SaveAs(strNewFileName, SAVE_TIFF_LZW);
+#endif
 	//Convert to grayscale
 	KImage *pImageGrayscale = pImage->ConvertToGrayscale();
 
@@ -83,11 +133,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	KImage *pImageConfidence = new KImage(*pImageGrayscale);
 
 
-	if (_DEBUG) {
+#ifdef _DEBUG
 		//... and save grayscale image
 		_stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s_grayscale.TIF"), argv[0]);
 		pImageGrayscale->SaveAs(strNewFileName, SAVE_TIFF_LZW);
-	}
+#endif
 
 	//Request direct access to image pixels in raw format
 	BYTE **pDataMatrixGrayscale = NULL;
