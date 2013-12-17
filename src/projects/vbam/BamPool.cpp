@@ -12,6 +12,7 @@
 #include "constants.h"
 #include "BamPool.h"
 #include "FileUtil.h"
+#include "ImageInfo.h"
 #include "Matrix.h"
 
 BamPool::BamPool(const TCHAR* bamsFolder, const TCHAR* inputImageName,
@@ -69,6 +70,7 @@ void BamPool::Vote()
 	std::unique_ptr<Matrix<int>> oneConfidences;
 	int width = 0;
 	int height = 0;
+	std::map<std::wstring, std::unique_ptr<ImageInfo>> imageInfos;
 
 	for (unsigned int i = 0; i < _bamNames.size(); ++i)
 	{
@@ -116,6 +118,19 @@ void BamPool::Vote()
 			zeroConfidences.reset(new Matrix<int>(width, height));
 			oneConfidences.reset(new Matrix<int>(width, height));
 		}
+
+		// Compute additional info from image
+		uint32_t pixelSum = 0;
+		uint64_t confidenceSum = 0;
+		for (int c = 0; c < height; ++c)
+		{
+			for (int r = 0; r < width; ++r)
+			{
+				pixelSum += binarizedImage.get()->Get1BPPPixel(r, c);
+				confidenceSum += confidenceImage.get()->Get8BPPPixel(r, c);
+			}
+		}
+		imageInfos[_bamNames[i]].reset(new ImageInfo(pixelSum, confidenceSum));
 
 		for (int c = 0; c < height; ++c)
 		{
