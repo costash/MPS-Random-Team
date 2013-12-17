@@ -15,10 +15,9 @@ Bam::Bam(const std::wstring& path, const std::wstring& executableName)
 	_lastRunOutputImageName(_T("")), _lastRunConfidenceFileName(_T(""))
 {
 	createFullPath();
-	if (_DEBUG)
-	{
-		_tprintf_s(_T("fullpath={%s}\n"), _fullPath.c_str());
-	}
+#ifdef _DEBUG
+	_tprintf_s(_T("fullpath={%s}\n"), _fullPath.c_str());
+#endif
 }
 
 void Bam::createFullPath()

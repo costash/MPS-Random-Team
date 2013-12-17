@@ -27,29 +27,27 @@ int BamPool::Init(const TCHAR* vbamExecutableName)
 	if (returnCode == FileUtil::SUCCESS)
 	{
 		// Skip my executable if bams are in the current folder
-		if (_DEBUG)
+#ifdef _DEBUG
+		_ftprintf_s(stderr, _T("bam names size before erase = %d\n"), _bamNames.size());
+		for (unsigned int i = 0; i < _bamNames.size(); ++i)
 		{
-			_ftprintf_s(stderr, _T("bam names size before erase = %d\n"), _bamNames.size());
-			for (unsigned int i = 0; i < _bamNames.size(); ++i)
-			{
-				_ftprintf_s(stderr, _T("%s "), _bamNames[i].c_str());
-			}
-			_ftprintf_s(stderr, _T("\n"));
+			_ftprintf_s(stderr, _T("%s "), _bamNames[i].c_str());
 		}
+		_ftprintf_s(stderr, _T("\n"));
+#endif
 		auto it = find(_bamNames.begin(), _bamNames.end(), std::wstring(vbamExecutableName));
 		if (it != _bamNames.end())
 		{
 			_bamNames.erase(it);
 		}
-		if (_DEBUG)
+#ifdef _DEBUG
+		_ftprintf_s(stderr, _T("bam names size after erase = %d\n"), _bamNames.size());
+		for (unsigned int i = 0; i < _bamNames.size(); ++i)
 		{
-			_ftprintf_s(stderr, _T("bam names size after erase = %d\n"), _bamNames.size());
-			for (unsigned int i = 0; i < _bamNames.size(); ++i)
-			{
-				_ftprintf_s(stderr, _T("%s "), _bamNames[i].c_str());
-			}
-			_ftprintf_s(stderr, _T("\n"));
+			_ftprintf_s(stderr, _T("%s "), _bamNames[i].c_str());
 		}
+		_ftprintf_s(stderr, _T("\n"));
+#endif
 	}
 
 	return returnCode;
