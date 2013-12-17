@@ -82,8 +82,14 @@ int Bam::Run(const std::wstring& inputImageName, const unsigned int timeout)
 
 void Bam::createOutputNames(const std::wstring& inputName)
 {
-	_lastRunOutputImageName = _exeName + _T("_") + inputName + _T(".TIF");
-	_lastRunConfidenceFileName = _exeName + _T("_") + inputName + _T("_conf.TIF");
+	wchar_t drive[_MAX_DRIVE];
+	wchar_t dir[_MAX_DIR];
+	wchar_t name[_MAX_FNAME];
+	wchar_t ext[_MAX_EXT];
+	_tsplitpath_s(inputName.c_str(), drive, dir, name, ext);
+
+	_lastRunOutputImageName = _exeName + _T("_") + name + _T(".TIF");
+	_lastRunConfidenceFileName = _exeName + _T("_") + name + _T("_conf.TIF");
 }
 
 //=============================================================================
