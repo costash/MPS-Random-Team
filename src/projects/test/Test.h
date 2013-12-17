@@ -19,7 +19,7 @@
 using namespace std;
 
 enum SOURCE {
-	ORIGNIAL_IMG,
+	ORIGINAL_IMG,
 	BAM_IMG
 };
 

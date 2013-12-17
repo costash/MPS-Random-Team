@@ -35,7 +35,7 @@ int Test::runOCR(SOURCE source)
 	wstring IMG_DIR;
 	wstring OUTPUT_DIR;
 
-	if (source == ORIGNIAL_IMG) {
+	if (source == ORIGINAL_IMG) {
 		IMG_DIR = ORIGINAL_IMG_DIR;
 		OUTPUT_DIR = ORIGINAL_OUTPUT_DIR;
 	}
