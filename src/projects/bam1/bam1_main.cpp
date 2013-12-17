@@ -6,10 +6,6 @@
 //===========================================================================
 //===========================================================================
 
-#ifndef _DEBUG
-	#define _DEBUG 0
-#endif
-
 //===========================================================================
 //===========================================================================
 #include "stdafx.h"
@@ -19,36 +15,27 @@
 #include <opencv2\core\core.hpp>
 #include <opencv2\imgproc\imgproc.hpp>
 #include <opencv2\highgui\highgui.hpp>
+#include <opencv2\photo\photo.hpp>
 //===========================================================================
 //===========================================================================
 
 using namespace cv;
 
-void do_magic2(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary) {
-	//Apply a threshold at half the grayscale range (0x00 is Full-Black, 0xFF is Full-White, 0x80 is the Middle-Gray)
-	for (int y = intHeight - 1; y >= 0; y--)
-		for (int x = intWidth - 1; x >= 0; x--)
-		{
-			//You may use this instead of the line below: 
-			//    BYTE PixelAtXY = pImageGrayscale->Get8BPPPixel(x, y)
-			BYTE &PixelAtXY = pDataMatrixGrayscale[y][x];
-			if (PixelAtXY < 0x80)
-				//...if closer to black, set to black
-				pImageBinary->Put1BPPPixel(x, y, false);
-			else
-				//...if closer to white, set to white
-				pImageBinary->Put1BPPPixel(x, y, true);
-		}
-}
+void nosiecomp(Mat im, double k, int nscale, double mult, int norient, double softness) {
+	
+	int minWaveLength = 2;
+	double sigmaOnf = 0.55;
+	double dThetaOnSigma = 1.;
+	double epsilon = .00001;
+	double thetaSigma = 3.1415926535/(double)norient/dThetaOnSigma;
+	Size sz = im.size();
+	Mat imagefft(sz, 0);
+	dft(im, imagefft);
 
-//double std_dev(int x, int y, int sz, int intHeight, int intWidth, BYTE **pDataMatrixGrayscale) {
-//	int i, j;
-//	for (j = -sz; j < sz && j+x < ; ++i)
-//		for (j = -sz; j < sz; ++j)
-//			if (x+i < 0 || x+i >= intHeight)
-//
-//
-//}
+
+
+
+}
 
 Mat anisodiff(Mat im, int niter, double kappa, double lambda, int option) {
 
@@ -84,19 +71,23 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 		for (int x = 0; x < intWidth; ++x)
 			t[y*intWidth+x] = pDataMatrixConfidence[y][x];
 	Mat te(intHeight, intWidth, CV_8UC1, t);
-
+	Mat te2(intHeight, intWidth, CV_8UC1);
 	Mat img(intHeight, intWidth, CV_64FC1);
 	Mat out3(intHeight, intWidth, CV_64FC1);
+	Mat out_savu(intHeight, intWidth, CV_64FC1);
 	Mat out2(intHeight, intWidth, CV_64FC1);
 	Mat out(intHeight, intWidth, CV_64FC1);
 	Mat temp(intHeight, intWidth, CV_64FC1);
-	//Mat kern(41,41, CV_64FC1, Scalar((double)1./1681));
+	
 	Mat kern(21,21, CV_64FC1, Scalar((double)1./441));
+	
 	double mx, mi;
 	minMaxLoc(te, &mi, &mx);
+	
 	te.convertTo(img, CV_64FC1, 1./mx);
 
 	img = anisodiff(img, 5, 20, .2, 1);
+	
 	///Mat kern2(11,11, CV_64FC1, Scalar(1./121));
 	//kern.at<float>(5,5) = 1;
 	//normalize(img,img);
@@ -108,11 +99,14 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	double M, R;
 	minMaxIdx(img, &M, &R);
 	compare(out*0.5 + 0.5*M+0.5*(out2 * (1/R)).mul(out-M), img, out3, CMP_LE);
-
+	compare(out.mul(1+0.3*(out2/128-1)), img, out_savu, CMP_LE);
+	//erode(out_savu, out3, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
 	//threshold(img, out,2,255, THRESH_BINARY|THRESH_OTSU);
-	/*namedWindow("Display Window", CV_WINDOW_AUTOSIZE);
+#ifdef _DEBUG
+	namedWindow("Display Window", CV_WINDOW_AUTOSIZE);
 	imshow("Display Window", out3);
-	waitKey(0);*/
+	waitKey(0);
+#endif
 	free(t);
 	for (int i = 0 ; i < out3.rows; ++i)
 		for (int j = 0; j < out3.cols; ++j)
