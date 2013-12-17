@@ -20,7 +20,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	// Verify command-line usage correctness
 
 	Test *T = new Test(argv[1]);
-	T->runOCR(ORIGNIAL_IMG);
+	// T->runOCR(ORIGNIAL_IMG);
 	T->runOCR(BAM_IMG);
 	T->computeScore();
 
