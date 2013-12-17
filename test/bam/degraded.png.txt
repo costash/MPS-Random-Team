@@ -1,0 +1,125 @@
+our approach in detail. Evaluation results are presented
+in section 4 while the main conclusions drawn from
+this study and future work directions are summarized
+in section 5.
+
+2. Related Work
+
+Many methods have been proposed in local or
+global thresholding. One of the earlier methods in
+image binarization was proposed by Otsu [7] based on
+the variance of pixel intensity. Bernsen l0] calculates
+ocal thresholds using neighbours. Nib ack [12] uses
+ocal mean and standard deviation. Sauvola [9]
+aresents a method specialized on document images that
+applies two algorithms in order to calcu ate a different
+threshold for each pixel. As far as the problem of
+iistorical documents is concerned Leedham [8]
+compares some of the traditional methocs on degraded
+document images while Gatos [l3] proposes a method
+using a combination of existing techniques. These are
+also the cases of Shi [l4] and Yan [l5] aaplied to some
+iistorical documents from the US library of Congress.
+ceydier [16] works with colored document images and
+implements a serialization of the k-means algorithm.
+Some of the above methods, apart from the basic
+3inarization algorithm, have also used are-processing
+or post-processing filters for improving the quality of
+the document image [13].
+
+In our previous work, we presented a method for
+cleaning and enhancing historical document images
+6]. Hereafter, this method will be called Iterative
+Global Threshalding (IGT). This method is both
+simple and effective. It selects a global threshold for a
+document image based on an iterative procedure. In
+each iteration, the following steps are performed:
+
+(i) The average pixel value is calculated.
+
+(ii) The average pixel value is subtracted from each
+
+pixel of the image.
+
+(iii) The histogram is stretched so that the remaining
+pixels to be distributed in all the grey scale tones.
+
+During the i-th iteration, document image I;(x, y)
+will be:
+
+T—I_ (x,y) (1)
+I , :1_ 1 11
+.(x y) mag]
+
+where I,_1(x, y) is the document image resulted in from
+the previous iteration (I0(x, y) is the original image), T,
+is the threshold calculated in the i-th iteration and E, is
+the minimum pixel value in the i-th repetition before
+the histogram stretching. Aﬁer each iteration, an
+amount of pixels is moved from the foreground to the
+background. The iterations stop based on the following
+criterion:
+
+]T,—T,,1]<0.00l (2)
+
+This approach works well on historical document
+images given that the foreground tone is darker than
+the background. It takes into account that the
+background corresponds to the great majority of the
+image pixels. Moreover, the foreground (text) will be
+roughly of the same grey scale tone and darker than the
+background. As a global thresholding method has
+relatively low time cost and it does not require
+complicated calculations. More importantly, it supports
+applications where the noise-free image should remain
+in grey-scale form.
+
+On the other hand, there are some cases of degraded
+document images, IGT (and most of the existing
+methods) are unable to handle. First, in case there are
+stains or scratches of similar grey scale tone with that
+of the foreground, it is not possible to remove it
+without losing useful information. Second, in case the
+foreground is written in more than one main tones
+(e.g., presence of both printed and handwritten text) it
+is likely the lighter tone to be significantly attenuated
+(or even be removed). Unfortunately, such cases are
+not uncommon in historical document images. In this
+paper, we show how this method can be improved by
+separately processing areas where noise still remains.
+
+3. The Proposed Approach
+
+We propose a hybrid approach for improving the
+quality of historical document images, that is, a
+combination of global and local thresholding. First, a
+global thresholding approach (IGT), is applied to the
+document image. Then, the areas that still contain
+noise are detected and re-processed separately. In more
+detail, the proposed algorithm consists of the following
+steps:
+
+(i) Apply IGT to the document image.
+
+(ii) Detect the areas in which it is more likely
+background noise to still remain.
+
+(iii) Re-apply IGT to each detected area separately.
+
+Figure 2 shows an example of the binarization of a
+historical image following the proposed approach.
+Figure 2a, 2b, 2c, and 2d show the original grey scale
+image, the result of applying IGT to the whole image,
+the detected areas with remaining noise, and the final
+result after applying IGT to each detected area,
+respectively. Note that the document image of figure 2
+is a hard case since many kinds of noise coexist in the
+same image (uneven illumination, stains, and page
+crumples). Moreover, mixed text (both printed and
+handwritten) as well as stamps are additional obstacles
+for the noise removal procedure.
+
+By selecting only specific areas of the image for
+processing based on local thresholding, we avoid the
+cost of applying local thresholding to the entire image.
+
