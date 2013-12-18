@@ -1,0 +1,9 @@
+Hinweis!
+
+1 Wahrend der Dauer eines Schattvorganges wird jede weitere Gangwahl ignoriert, d.h., der Schaltvorgang muß abgeschlossen sein, bevor erneut geschattet werden kann. Das Schalten in die Neutralstellung hat gegenüber den anderen Schaltvorgängen Vorrang, d.h. es kann jederzeit aus jedem Gang in ‘‘Neutral" geschaltet werden.
+
+¦	Die Stellung des Fahrpedals muß während des Schaltvorganges nicht verändert werden, da der Motor dabei automatisch geregelt wird.
+
+¦	Die Funktion der Geschwindigkeitsregelanlage (Cruise Control) Wird beim Schatten der
+
+¦	' Gange nicht ausgeschattet
