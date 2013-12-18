@@ -1,4 +1,4 @@
-$BAMS = @("bam1.exe", "bam2.exe");
+$BAMS = @("bam1.exe", "bam2.exe", "bam3.exe", "bam4.exe", "bam5.exe");
 $TEST_IMAGES = @(
 	"doom.jpg", 
 	"degraded.png", 
@@ -18,21 +18,57 @@ $OUT_IMAGES = @(
 );
 
 ##------------------------------------------------------------------------------
-## Select BAM for testing
+## Select running mode
 
 echo "";
-echo "Select bam:";
-echo "    0) bam1.exe";
-echo "    1) bam2.exe";
-echo "    2) vbam.exe";
-
+echo "Select mode:";
+echo "    0) RUN VBAM";
+echo "    1) RUN BAM";
+echo "    2) TEST (TESSERACT)";
+echo "    3) Copy-Debug";
+echo "    4) Copy-Release";
+echo "    5) CLEAN";
 echo "";
-$program_id = read-host "BAM number";
+$mode = read-host "Running mode";
 
-if (($program_id -lt 0) -or ($program_id -gt 2)) {
-	echo "Incorrect BAM";
-	echo "";
+##------------------------------------------------------------------------------
+## Copy
+
+if ($mode -eq 3) {
+	Copy-Item .\src\Debug\* -include bam*.exe, *.dll `
+		-destination .\bam\
+	Remove-Item -Recurse -Force .\bam\vbam\		
+	New-Item  .\bam\vbam\ -itemtype directory
+	Copy-Item .\src\Debug\* -include vbam.exe, FreeImage.dll `
+		-destination .\bam\vbam\
 	EXIT;
+}
+
+if ($mode -eq 4) {
+	Copy-Item .\src\Release\* -include bam*.exe, *.dll `
+		-destination .\bam\
+	Remove-Item -Recurse -Force .\bam\vbam\		
+	New-Item  .\bam\vbam\ -itemtype directory
+	Copy-Item .\src\Release\* -include vbam.exe, FreeImage.dll `
+		-destination .\bam\vbam\
+	EXIT;
+}
+
+##------------------------------------------------------------------------------
+## CLEAN
+
+if ($mode -eq 5) {
+	Remove-Item .\bam\* -include *.tif, *.tiff
+	Remove-Item .\output\*
+	Remove-Item .\* -include *.tif, *.tiff
+	EXIT;
+}
+
+##------------------------------------------------------------------------------
+## Get BAM ID if running mode is BAM
+
+if ($mode -eq 1) {
+	$bam_id = read-host "Insert BAM ID: ";
 }
 
 ##------------------------------------------------------------------------------
@@ -54,25 +90,31 @@ echo "";
 ## Functions
 
 function getBAMCommand($IMAGE_ID){
-	$command = ".\src\Release\" +  $BAMS[$program_id] + " .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\" + $OUT_IMAGES[$IMAGE_ID] + ".tiff .\output\" + $OUT_IMAGES[$IMAGE_ID] + "_conf.tiff";
+	$command = ".\bam\" +  $BAMS[$bam_id - 1] + " .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\" + $OUT_IMAGES[$IMAGE_ID] + ".tiff .\output\" + $OUT_IMAGES[$IMAGE_ID] + "_conf.tiff";
     return $command;
 }
 
 function getVBAMCommand($IMAGE_ID){
-	$command = ".\src\Release\vbam.exe 100 1000 .\bam .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\ " + $OUT_IMAGES[$IMAGE_ID];
+	$command = ".\bam\vbam\vbam.exe 100 1000 .\bam .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\ " + $OUT_IMAGES[$IMAGE_ID];
     return $command;
 }
 
 function RunCommand($image_id) {
-	if ($program_id -ne 2) {
-		echo ("RUNNING BAM on " + $TEST_IMAGES[$image_id]);
-		$command = getBAMCommand($image_id);
-		iex $command;
-	}
-	elseif ($program_id -eq 2) {
+	if ($mode -eq 0) {
 		echo ("RUNNING VBAM on " + $TEST_IMAGES[$image_id]);
 		$command = getVBAMCommand($image_id);
 		iex $command;
+	}
+
+	if ($mode -eq 1) {
+		echo ("RUNNING BAM on " + $TEST_IMAGES[$image_id]);
+		$command = getBAMCommand($image_id);
+		iex $command;
+		return;
+	}
+
+	if ($mode -eq 2) {
+		return;
 	}
 }
 
