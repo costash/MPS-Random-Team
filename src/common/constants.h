@@ -56,6 +56,14 @@ static VOID PrintLastError(const TCHAR* message)
 	_ftprintf(stderr, _T("%s: %s\n"), message, errBuff);
 }
 
+#define DIE2(assertion, callDescription, exitCode)	\
+	do {											\
+	if (!assertion) {							\
+	fprintf(stderr,"%s\n", callDescription);	\
+	exit(exitCode);							\
+	}											\
+	} while(0)
+
 // useful macro for handling error codes
 #define DIE(assertion, callDescription, exitCode)	\
 	do {											\

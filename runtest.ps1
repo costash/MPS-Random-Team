@@ -104,8 +104,8 @@ function getBAMCommand($IMAGE_ID){
     return $command;
 }
 
-function getVBAMCommand($IMAGE_ID){
-	$command = ".\bam\vbam\vbam.exe 100 1000 .\bam .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\ " + $OUT_IMAGES[$IMAGE_ID];
+function getVBAMCommand($IMAGE_ID) {
+	$command = ".\bam\vbam\vbam.exe 100 1000 .\bam .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\ " + ".\output\" + $OUT_IMAGES[$IMAGE_ID];
     return $command;
 }
 

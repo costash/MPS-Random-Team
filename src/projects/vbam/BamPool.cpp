@@ -17,8 +17,8 @@
 #include "ImageInfo.h"
 #include "Matrix.h"
 
-#include "Util.h"
-#include "GraphFlow.hpp"
+#include "Util.hpp"
+typedef unsigned int uint;
 
 BamPool::BamPool(const TCHAR* bamsFolder, const TCHAR* inputImageName,
 				 const TCHAR* outputFolder, const TCHAR* outputName)
@@ -178,9 +178,9 @@ void BamPool::DummyVote()
 	}
 	
 	// Save output image
-	if (!votedOutput.get()->SaveAs((_outputFolder + _outputName + std::wstring(_T(".TIFF"))).c_str(), SAVE_TIFF_CCITTFAX4))
+	if (!votedOutput.get()->SaveAs((_outputName + std::wstring(_T(".TIFF"))).c_str(), SAVE_TIFF_CCITTFAX4))
 	{
-		_tprintf(_T("Unable to save confidence image: %s"), (_outputFolder + _outputName + std::wstring(_T(".TIFF"))).c_str());
+		_tprintf(_T("Unable to save image: %s"), (_outputName + std::wstring(_T(".TIFF"))).c_str());
 	}
 
 	votedOutput.get()->EndDirectAccess();
@@ -227,7 +227,8 @@ static inline void setParam( int& param, int value, const char* message )
 		param = value;
 	}
 	else{
-		_assert( param == value, message );
+		//_assert( param == value, message );
+		DIE2( param == value, message, 1 );
 	}
 }
 
@@ -439,6 +440,7 @@ static void splitImage( AlgoState& state, int num_samples )
 	}
 }
 
+/*
 static const float boundary_ct = 1.0f;
 static void graphCut( AlgoState& state )
 {
@@ -456,9 +458,6 @@ static void graphCut( AlgoState& state )
 		}
 		marked.insert(pos);
 
-		/*
-			Build graph.
-		*/
 
 		int idx_counter = 0;
 		std::queue< Vertex* > queue;
@@ -490,9 +489,6 @@ static void graphCut( AlgoState& state )
 				nodes.push_back( Vertex(nx,ny) );
 				idx_counter++;
 
-				/*
-					Based on a 'gravity' intuition
-				*/
 				
 				float cap;
 				float neigh_tendency = state.ImageConf->Get( current->x, current->y );
@@ -548,7 +544,7 @@ static void graphCut( AlgoState& state )
 
 		graph.reset();
 	}
-}
+}*/
 
 void BamPool::SmartVote( int num_samples )
 {
@@ -561,16 +557,16 @@ void BamPool::SmartVote( int num_samples )
 	for( unsigned int i = 0, sz = _bamNames.size(); i < sz; ++i )
 	{
 		Bam* bam = _bams[ _bamNames[i] ].get();
-		_assert( bam->LastRunStatus() == Bam::EXECUTED_SUCCESSFULLY, "Bam Execution fail");
+		DIE2( bam->LastRunStatus() == Bam::EXECUTED_SUCCESSFULLY, "Bam Execution fail", 1);
 
 		KImage* image_pixels = new KImage( bam->ImagePath().c_str() );
-		_assert( image_pixels != NULL && image_pixels->IsValid(), "File %s can't be read!", bam->ImagePath().c_str());   
-		_assert( image_pixels->GetBPP() == 1, "File %s is not a valid 1BPP image!", bam->ImagePath().c_str() );
+		DIE2( image_pixels != NULL && image_pixels->IsValid(), "File can't be read!",  1);   
+		DIE2( image_pixels->GetBPP() == 1, "File is not a valid 1BPP image!", 1 );
 
 		KImage* image_conf = new KImage( bam->ConfPath().c_str() );
-		_assert( image_conf != NULL && image_conf->IsValid(), "File %s can't be read!", bam->ConfPath().c_str());   
-		_assert( image_conf->GetBPP() == 8, "File %s is not a valid 1BPP image!", bam->ConfPath().c_str() );
-		_assert( image_pixels->BeginDirectAccess() && image_conf->BeginDirectAccess(), "Files %s or %s could not begin direct access!", bam->ImagePath(), bam->ConfPath().c_str() )
+		DIE2( image_conf != NULL && image_conf->IsValid(), "File can't be read!", 1);   
+		DIE2( image_conf->GetBPP() == 8, "File is not a valid 1BPP image!", 1 );
+		DIE2( image_pixels->BeginDirectAccess() && image_conf->BeginDirectAccess(), "Files or could not begin direct access!", 1 );
 		
 		BamImagePixels.push_back( image_pixels );
 		BamConf.push_back( image_conf );
@@ -599,7 +595,7 @@ void BamPool::SmartVote( int num_samples )
 
 	// Create the final output image
 	KImage* votedOutput = new KImage(state.width, state.height, 1);
-	_assert( votedOutput->BeginDirectAccess(), "Failure accessing image");
+	DIE2( votedOutput->BeginDirectAccess(), "Failure accessing image", 1);
 
 	for( int j = 0; j < state.width; ++j ){
 		for( int i = 0; i < state.height; ++i ){
@@ -607,11 +603,11 @@ void BamPool::SmartVote( int num_samples )
 		}
 	}
 
-	BOOL ret = votedOutput->SaveAs((_outputFolder + _outputName + std::wstring(_T(".TIFF"))).c_str(), SAVE_TIFF_CCITTFAX4);
-	_assert( ret != 0, "Unable to save confidence image: %s", (_outputFolder + _outputName + std::wstring(_T(".TIFF"))).c_str() );
-	_assert( !votedOutput->EndDirectAccess(), "Fail closing output image\n");
+	BOOL ret = votedOutput->SaveAs((_outputName + std::wstring(_T(".TIFF"))).c_str(), SAVE_TIFF_CCITTFAX4);
+	DIE2( ret != 0, "Unable to save confidence image:", 1 );
+	DIE2( !votedOutput->EndDirectAccess(), "Fail closing output image\n", 1);
 
-	for( uint i = 0, size = BamImagePixels.size(); i < size; ++i ){
+	for( unsigned int i = 0, size = BamImagePixels.size(); i < size; ++i ){
 		BamImagePixels[i]->EndDirectAccess();
 		BamConf[i]->EndDirectAccess();
 	}
