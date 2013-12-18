@@ -12,6 +12,7 @@
 
 //===========================================================================
 //===========================================================================
+#include <iostream>
 #include "stdafx.h"
 #include "Direct_Access_Image.h"
 #include "constants.h"
@@ -23,6 +24,7 @@
 //===========================================================================
 
 using namespace cv;
+using namespace std;
 
 void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary) {
 	BYTE* t = (BYTE*)calloc(intHeight*intWidth,sizeof(unsigned char));
@@ -36,7 +38,7 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	Mat out2(intHeight, intWidth, CV_64FC1);
 	Mat out(intHeight, intWidth, CV_64FC1);
 	Mat temp(intHeight, intWidth, CV_64FC1);
-	Mat kern(51,51, CV_64FC1, Scalar((double)1./2681));
+	Mat kern(41,41, CV_64FC1, Scalar((double)1./1681));
 	//Mat kern(21,21, CV_64FC1, Scalar((double)1./441));
 	double mx, mi;
 	minMaxLoc(te, &mi, &mx);
@@ -55,6 +57,95 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	for (int i = 0 ; i < out3.rows; ++i)
 		for (int j = 0; j < out3.cols; ++j)
 			pImageBinary->Put1BPPPixel(j,i,out3.at<bool>(i,j));
+}
+
+BYTE *get_histogram(int intHeight, int intWidth, BYTE** img)
+{
+	BYTE* t = (BYTE*)calloc(256, sizeof(unsigned char));
+
+	for (int i = 0; i < intHeight; i++) {
+		for (int j = 0; j < intWidth; j++) {
+			t[img[i][j]]++;
+		}
+	}
+
+	return t;
+}
+
+int get_otsu_threshold(BYTE *histogram, int total) {
+	int sum = 0;
+	int sumB = 0;
+	int wB = 0, wF = 0;
+	double mB = 0, mF = 0;
+	double max = 0, between;
+	int threshold = 0;
+
+	for (int i = 1; i < 256; i++) {
+		sum += i * histogram[i];
+	}
+
+	for (int i = 0; i < 256; i++) {
+		wB += histogram[i];
+		if (wB ==0)
+			continue;
+		wF = total - wB;
+		if (wF == 0)
+			break;
+		sumB += i * histogram[i];
+		mB = (double)sumB / wB;
+		mF = (double)(sum - sumB) / wF;
+		between = wB * wF * pow(mB - mF, 2);
+		if (between > max) {
+			max = between;
+			threshold = i;
+		}
+	}
+
+	return threshold;
+}
+
+void do_otsu_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary)
+{
+	BYTE* histogram = get_histogram(intHeight, intWidth, pDataMatrixGrayscale);
+	int threshold = get_otsu_threshold(histogram, intHeight * intWidth);
+
+	cout << "otsu threshold = " << threshold;
+
+	for (int i = 0; i < intHeight; i++)
+		for (int j = 0; j < intWidth; j++)
+			pImageBinary->Put1BPPPixel(j, i, pDataMatrixGrayscale[i][j] > threshold ? true : false);
+
+	free(histogram);
+}
+
+Mat get_mat(int intHeight, int intWidth, BYTE **matrix)
+{
+	BYTE* t = (BYTE*)calloc(intHeight*intWidth, sizeof(unsigned char));
+	for (int y = 0; y < intHeight; ++y)
+		for (int x = 0; x < intWidth; ++x)
+			t[y*intWidth+x] = matrix[y][x];
+	Mat img(intHeight, intWidth, CV_8UC1, t);
+	free(t);
+	return img;
+}
+
+void do_otsu_magic2(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary)
+{
+	BYTE* t = (BYTE*)calloc(intHeight*intWidth, sizeof(unsigned char));
+	for (int y = 0; y < intHeight; ++y)
+		for (int x = 0; x < intWidth; ++x)
+			t[y*intWidth+x] = pDataMatrixGrayscale[y][x];
+	Mat img(intHeight, intWidth, CV_8UC1, t);
+
+	Mat out(intHeight, intWidth, CV_64FC1);
+
+	threshold(img, out, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+
+	for (int i = 0 ; i < out.rows; ++i)
+		for (int j = 0; j < out.cols; ++j)
+			pImageBinary->Put1BPPPixel(j,i,out.at<bool>(i,j));
+
+	free(t);
 }
 
 
@@ -127,7 +218,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		KImage *pImageBinary = new KImage(intWidth, intHeight, 1);
 		if (pImageBinary->BeginDirectAccess() && pImageConfidence->BeginDirectAccess() && (pDataMatrixConfidence = pImageConfidence->GetDataMatrix()) != NULL)
 		{
-			do_magic(intHeight, intWidth, pDataMatrixGrayscale, pDataMatrixConfidence, pImageBinary);
+			do_otsu_magic(intHeight, intWidth, pDataMatrixGrayscale, pDataMatrixConfidence, pImageBinary);
 
 			//Close direct access
 			pImageBinary->EndDirectAccess();
