@@ -68,7 +68,7 @@ int Bam::Run(const std::wstring& inputImageName, const unsigned int timeout)
 
 	if (waitResult == WAIT_TIMEOUT)
 	{
-		_ftprintf_s(stderr, _T("Bam %s exceeded time limit of %d", commandLine, timeout));
+		_ftprintf_s(stderr, _T("Bam %s exceeded time limit of %d"), commandLine, timeout);
 		return BAM_EXIT_CODE::TIMEOUT;
 	}
 
