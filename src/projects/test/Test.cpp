@@ -6,8 +6,8 @@
 //===========================================================================
 //===========================================================================
 #include "stdafx.h"
-#include "Test.h"
 #include "constants.h"
+#include "Test.h"
 
 #include <cstdio>
 #include <cstdlib>
