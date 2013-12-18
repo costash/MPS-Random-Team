@@ -4,8 +4,13 @@ $TEST_IMAGES = @(
 	"degraded.png", 
 	"newspaper.jpg", 
 	"perf.jpg", 
-	"truth.jpg"
-	"newspaper2.jpg"
+	"truth.jpg",
+	"newspaper2.jpg",
+	"test3.jpg",
+	"test4.jpg",
+	"test5.jpg",
+	"test6.jpg",
+	"test7.jpg"
 );
 
 $OUT_IMAGES = @(
@@ -13,8 +18,13 @@ $OUT_IMAGES = @(
 	"degraded", 
 	"newspaper", 
 	"perf", 
-	"truth"
-	"newspaper2"
+	"truth",
+	"newspaper2",
+	"test3",
+	"test4",
+	"test5",
+	"test6",
+	"test7"
 );
 
 ##------------------------------------------------------------------------------
@@ -29,7 +39,7 @@ echo "    3) Copy-Debug";
 echo "    4) Copy-Release";
 echo "    5) CLEAN";
 echo "";
-$mode = read-host "Running mode";
+[int]$mode = read-host "Running mode";
 
 ##------------------------------------------------------------------------------
 ## Copy
@@ -68,7 +78,7 @@ if ($mode -eq 5) {
 ## Get BAM ID if running mode is BAM
 
 if ($mode -eq 1) {
-	$bam_id = read-host "Insert BAM ID: ";
+	[int]$bam_id = read-host "Insert BAM ID: ";
 }
 
 ##------------------------------------------------------------------------------
@@ -83,7 +93,7 @@ for ($i=1; $i -le $OUT_IMAGES.length; $i++) {
 }
 
 echo "";
-$test = read-host "Test number";
+[int]$test = read-host "Test number";
 echo "";
 
 ##------------------------------------------------------------------------------
