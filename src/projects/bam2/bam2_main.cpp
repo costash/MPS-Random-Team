@@ -23,6 +23,11 @@
 using namespace cv;
 using namespace std;
 
+#define uget(x,y)    at<unsigned char>(y,x)
+#define uset(x,y,v)  at<unsigned char>(y,x)=v;
+#define fget(x,y)    at<float>(y,x)
+#define fset(x,y,v)  at<float>(y,x)=v;
+
 void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary) {
 	BYTE* t = (BYTE*)calloc(intHeight*intWidth,sizeof(unsigned char));
 	for (int y = 0; y < intHeight; ++y)
@@ -145,6 +150,180 @@ void do_otsu_magic2(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BY
 	free(t);
 }
 
+// *************************************************************
+// code adapted from http://liris.cnrs.fr/christian.wolf/software/binarize/index.html
+// *************************************************************
+void calcLocalStats (Mat &im, Mat &map_m, Mat &map_B, int winx, int winy) {
+
+	double m, B, sum, sum_sq, foo;
+	int wxh	= winx/2;
+	int wyh	= winy/2;
+	int x_firstth= wxh;
+	int y_lastth = im.rows-wyh-1;
+	int y_firstth= wyh;
+	double winarea = winx*winy;
+
+	for	(int j = y_firstth ; j<=y_lastth; j++) 
+	{
+		// Calculate the initial window at the beginning of the line
+		sum = sum_sq = 0;
+		for	(int wy=0 ; wy<winy; wy++)
+			for	(int wx=0 ; wx<winx; wx++) {
+				foo = im.uget(wx,j-wyh+wy);
+				sum    += foo;
+				sum_sq += foo*foo;
+			}
+		m  = sum / winarea;
+		B  = (sum_sq - (sum*sum) / winarea) / winarea;
+
+		map_m.fset(x_firstth, j, m);
+		map_B.fset(x_firstth, j, B);
+
+		// Shift the window, add and remove	new/old values to the histogram
+		for	(int i=1 ; i <= im.cols-winx; i++) {
+
+			// Remove the left old column and add the right new column
+			for (int wy=0; wy<winy; ++wy) {
+				foo = im.uget(i-1,j-wyh+wy);
+				sum    -= foo;
+				sum_sq -= foo*foo;
+				foo = im.uget(i+winx-1,j-wyh+wy);
+				sum    += foo;
+				sum_sq += foo*foo;
+			}
+			m  = sum / winarea;
+			B  = (sum_sq - (sum*sum) / winarea) / winarea;
+
+			map_m.fset(i+wxh, j, m);
+			map_B.fset(i+wxh, j, B);
+		}
+	}
+}
+
+
+/**********************************************************
+ * code adapted from http://liris.cnrs.fr/christian.wolf/software/binarize/index.html
+ * modified to perform NICK binarization
+ * The binarization routine
+ **********************************************************/
+void NICK (Mat im, Mat output, int winx, int winy, double k)
+{
+	double m, B;
+	double th=0;
+	double min_I, max_I;
+	int wxh	= winx/2;
+	int wyh	= winy/2;
+	int x_firstth= wxh;
+	int x_lastth = im.cols-wxh-1;
+	int y_lastth = im.rows-wyh-1;
+	int y_firstth= wyh;
+	int mx, my;
+
+	// Create local statistics and store them in a double matrices
+	Mat map_m = Mat::zeros (im.rows, im.cols, CV_32F);
+	Mat map_B = Mat::zeros (im.rows, im.cols, CV_32F);
+	calcLocalStats (im, map_m, map_B, winx, winy);
+	
+	minMaxLoc(im, &min_I, &max_I);
+			
+	Mat thsurf (im.rows, im.cols, CV_32F);
+			
+	// Create the threshold surface, including border processing
+	// ----------------------------------------------------
+
+	for	(int j = y_firstth ; j<=y_lastth; j++) {
+
+		// NORMAL, NON-BORDER AREA IN THE MIDDLE OF THE WINDOW:
+		for	(int i=0 ; i <= im.cols-winx; i++) {
+
+			m  = map_m.fget(i+wxh, j);
+    		B  = map_B.fget(i+wxh, j);
+
+    		// Calculate the threshold
+			th = m + k * sqrt(B + m * m);
+
+    		thsurf.fset(i+wxh,j,th);
+
+    		if (i==0) {
+        		// LEFT BORDER
+        		for (int i=0; i<=x_firstth; ++i)
+                	thsurf.fset(i,j,th);
+
+        		// LEFT-UPPER CORNER
+        		if (j==y_firstth)
+        			for (int u=0; u<y_firstth; ++u)
+        			for (int i=0; i<=x_firstth; ++i)
+        				thsurf.fset(i,u,th);
+
+        		// LEFT-LOWER CORNER
+        		if (j==y_lastth)
+        			for (int u=y_lastth+1; u<im.rows; ++u)
+        			for (int i=0; i<=x_firstth; ++i)
+        				thsurf.fset(i,u,th);
+    		}
+
+			// UPPER BORDER
+			if (j==y_firstth)
+				for (int u=0; u<y_firstth; ++u)
+					thsurf.fset(i+wxh,u,th);
+
+			// LOWER BORDER
+			if (j==y_lastth)
+				for (int u=y_lastth+1; u<im.rows; ++u)
+					thsurf.fset(i+wxh,u,th);
+		}
+
+		// RIGHT BORDER
+		for (int i=x_lastth; i<im.cols; ++i)
+        	thsurf.fset(i,j,th);
+
+  		// RIGHT-UPPER CORNER
+		if (j==y_firstth)
+			for (int u=0; u<y_firstth; ++u)
+			for (int i=x_lastth; i<im.cols; ++i)
+				thsurf.fset(i,u,th);
+
+		// RIGHT-LOWER CORNER
+		if (j==y_lastth)
+			for (int u=y_lastth+1; u<im.rows; ++u)
+			for (int i=x_lastth; i<im.cols; ++i)
+				thsurf.fset(i,u,th);
+	}
+	//cerr << "surface created" << endl;
+	
+	
+	for	(int y=0; y<im.rows; ++y) 
+	for	(int x=0; x<im.cols; ++x) 
+	{
+    	if (im.uget(x,y) >= thsurf.fget(x,y))
+    	{
+    		output.uset(x,y,255);
+    	}
+    	else
+    	{
+    	    output.uset(x,y,0);
+    	}
+    }
+}
+
+void do_NICK_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary)
+{
+	BYTE* t = (BYTE*)calloc(intHeight*intWidth, sizeof(unsigned char));
+	for (int y = 0; y < intHeight; ++y)
+		for (int x = 0; x < intWidth; ++x)
+			t[y*intWidth+x] = pDataMatrixGrayscale[y][x];
+	Mat img(intHeight, intWidth, CV_8U, t);
+
+	Mat out(intHeight, intWidth, CV_8U);
+
+	NICK(img, out, 40, 40, -0.2);
+
+	for (int i = 0 ; i < out.rows; ++i)
+		for (int j = 0; j < out.cols; ++j)
+			pImageBinary->Put1BPPPixel(j,i,out.at<bool>(i,j));
+	
+	free(t);
+}
 
 //===========================================================================
 //===========================================================================
@@ -215,7 +394,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		KImage *pImageBinary = new KImage(intWidth, intHeight, 1);
 		if (pImageBinary->BeginDirectAccess() && pImageConfidence->BeginDirectAccess() && (pDataMatrixConfidence = pImageConfidence->GetDataMatrix()) != NULL)
 		{
-			do_otsu_magic(intHeight, intWidth, pDataMatrixGrayscale, pDataMatrixConfidence, pImageBinary);
+			do_NICK_magic(intHeight, intWidth, pDataMatrixGrayscale, pDataMatrixConfidence, pImageBinary);
+
+			// create 50-50 confidence img
+			for (int i = 0 ; i < intHeight; ++i)
+				for (int j = 0; j < intWidth; ++j)
+					pImageConfidence->Put8BPPPixel(j, i, 128);
 
 			//Close direct access
 			pImageBinary->EndDirectAccess();
