@@ -27,14 +27,16 @@ int _tmain(int argc, _TCHAR* argv[])
 			_T("\t\t<timeout for init and destroy (miliseconds t2)>\n")
 			_T("\t\t<folder where BAM executables are found>\n")
 			_T("\t\t<input image name for BAM> <BAM output folder>\n")
-			_T("\t\t<output image name>\n"), argv[0]);
+			_T("\t\t<output image name> %d\n"), argv[0], argc);
 		return VBAM_EXIT::ARGS_ERR;
 	}
 
 	BamPool pool(argv[3], argv[4], argv[5], argv[6]);
 	pool.Init(argv[0]);
 	pool.SpawnAll(argv[1], argv[2]);
-	pool.Vote();
+	
+//	pool.SmartVote( 1 );
+	pool.DummyVote();
 
 	// Return with success
 	return VBAM_EXIT::SUCCESS;

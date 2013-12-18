@@ -12,7 +12,7 @@
 
 Bam::Bam(const std::wstring& path, const std::wstring& executableName)
 	: _path(path), _exeName(executableName), _lastRunStatus(NOT_EXECUTED),
-	_lastRunOutputImageName(_T("")), _lastRunConfidenceFileName(_T(""))
+	_ImagePath(_T("")), _ConfPath(_T(""))
 {
 	createFullPath();
 #ifdef _DEBUG
@@ -39,8 +39,8 @@ int Bam::Run(const std::wstring& inputImageName, const unsigned int timeout)
 		_T("%s %s %s %s"),
 		_fullPath.c_str(),
 		inputImageName.c_str(),
-		_lastRunOutputImageName.c_str(),
-		_lastRunConfidenceFileName.c_str());
+		_ImagePath.c_str(),
+		_ConfPath.c_str());
 
 	STARTUPINFO si;
 	ZeroMemory(&si, sizeof(si));
@@ -88,8 +88,8 @@ void Bam::createOutputNames(const std::wstring& inputName)
 	wchar_t ext[_MAX_EXT];
 	_tsplitpath_s(inputName.c_str(), drive, dir, name, ext);
 
-	_lastRunOutputImageName = _exeName + _T("_") + name + _T(".TIF");
-	_lastRunConfidenceFileName = _exeName + _T("_") + name + _T("_conf.TIF");
+	_ImagePath = _exeName + _T("_") + name + _T(".TIF");
+	_ConfPath = _exeName + _T("_") + name + _T("_conf.TIF");
 }
 
 //=============================================================================
@@ -106,12 +106,12 @@ int Bam::LastRunStatus()
 	return _lastRunStatus;
 }
 
-const std::wstring& Bam::LastRunOutputImageName()
+const std::wstring& Bam::ImagePath()
 {
-	return _lastRunOutputImageName;
+	return _ImagePath;
 }
 
-const std::wstring& Bam::LastRunConfidenceFileName()
+const std::wstring& Bam::ConfPath()
 {
-	return _lastRunConfidenceFileName;
+	return _ConfPath;
 }

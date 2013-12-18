@@ -11,6 +11,7 @@
 #include "stdafx.h"
 #include "Direct_Access_Image.h"
 #include "constants.h"
+#include <queue>
 #include <cstring>
 #include <opencv2\core\core.hpp>
 #include <opencv2\imgproc\imgproc.hpp>
@@ -73,21 +74,23 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	Mat te(intHeight, intWidth, CV_8UC1, t);
 	Mat te2(intHeight, intWidth, CV_8UC1);
 	Mat img(intHeight, intWidth, CV_64FC1);
-	Mat out3(intHeight, intWidth, CV_64FC1);
-	Mat out_savu(intHeight, intWidth, CV_64FC1);
+	Mat out_wolf(intHeight, intWidth, CV_8UC1);
+	Mat final(intHeight, intWidth, CV_8UC1, Scalar(255));
+	Mat out_savu(intHeight, intWidth, CV_8UC1);
 	Mat out2(intHeight, intWidth, CV_64FC1);
 	Mat out(intHeight, intWidth, CV_64FC1);
 	Mat temp(intHeight, intWidth, CV_64FC1);
 	
-	Mat kern(21,21, CV_64FC1, Scalar((double)1./441));
-	
+	Mat kern(15,15, CV_64FC1, Scalar((double)1./225));
+	//Mat kern(21,21, CV_64FC1, Scalar((double)1./441));
 	double mx, mi;
 	minMaxLoc(te, &mi, &mx);
 	
 	te.convertTo(img, CV_64FC1, 1./mx);
-
-	img = anisodiff(img, 5, 20, .2, 1);
 	
+	//dilate(img, img, getStructuringElement(MORPH_CROSS, Size(3, 3)));
+	img = anisodiff(img, 5, 20, .2, 1);
+	//erode(img, img, getStructuringElement(MORPH_CROSS, Size(3, 3)));
 	///Mat kern2(11,11, CV_64FC1, Scalar(1./121));
 	//kern.at<float>(5,5) = 1;
 	//normalize(img,img);
@@ -98,19 +101,66 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	sqrt(out2, out2);
 	double M, R;
 	minMaxIdx(img, &M, &R);
-	compare(out*0.5 + 0.5*M+0.5*(out2 * (1/R)).mul(out-M), img, out3, CMP_LE);
-	compare(out.mul(1+0.3*(out2/128-1)), img, out_savu, CMP_LE);
+
+	Mat thresh = out.mul(1+0.3*(out2/128-1));
+	compare(out*0.5 + 0.5*M+0.5*(out2 * (1/R)).mul(out-M), img, out_wolf, CMP_LE);
+	compare(thresh, img, out_savu, CMP_LE);
 	//erode(out_savu, out3, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+	//dilate(out_savu, out_savu, getStructuringElement(MORPH_CROSS, Size(3, 3)));
 	//threshold(img, out,2,255, THRESH_BINARY|THRESH_OTSU);
+
+	free(t);
+	Mat save = out_wolf.clone();
+	//Contour trying 1
+	/*
+	const int dx[] = {0, 0, 1, -1};
+	const int dy[] = {1, -1, 0, 0};
+	for (int i = 0 ; i < out_wolf.rows; ++i)
+		for (int j = 0; j < out_wolf.cols; ++j)
+			if (out_wolf.at<bool>(i,j)) {
+				std::queue<std::pair < int, int > > q;
+				std::queue<std::pair < int, int > > s;
+				int saved = 0;
+				q.push(std::make_pair(i,j));
+				out_wolf.at<bool>(i,j) = false;
+				while (!q.empty()) {
+					std::pair <int, int>  x = q.front(); q.pop();
+					s.push(x);
+					if (out_savu.at<bool>(x.first,x.second))
+						++saved;
+					
+					for (int d = 0; d< 4; ++d) {
+						int xx = x.first+dx[d];
+						int yy = x.second+dy[d];
+						if (0<= xx && xx < out_wolf.rows && 0<=yy && yy<out_wolf.cols && out_wolf.at<bool>(xx,yy)){
+							q.push(std::make_pair(xx,yy));
+							out_wolf.at<bool>(xx, yy) = false;
+						}
+					}
+				}
+				if (saved > 0.1*s.size() && s.size() > 5)
+					while (!s.empty()) {
+						std::pair <int, int>  x = s.front(); s.pop();
+						final.at<bool>(x.first, x.second) = true;
+					}
+				else
+					while (!s.empty())
+						s.pop();
+				
+			}
+	*/
+	final = out_savu;
 #ifdef _DEBUG
 	namedWindow("Display Window", CV_WINDOW_AUTOSIZE);
-	imshow("Display Window", out3);
+	imshow("Display Window", final);
 	waitKey(0);
 #endif
-	free(t);
-	for (int i = 0 ; i < out3.rows; ++i)
-		for (int j = 0; j < out3.cols; ++j)
-			pImageBinary->Put1BPPPixel(j,i,out3.at<bool>(i,j));
+
+	for (int i = 0 ; i < final.rows; ++i)
+		for (int j = 0; j < final.cols; ++j) {
+			pImageBinary->Put1BPPPixel(j,i,final.at<bool>(i,j));
+			pDataMatrixConfidence[i][j] = abs(1-abs(thresh.at<double>(i,j)*255 - pDataMatrixConfidence[i][j]))*255;
+		}
 }
 
 
@@ -143,7 +193,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	//Apply a Gaussian Blur with small radius to remove obvious noise
-	//pImage->GaussianBlur(0.5);
+	pImage->GaussianBlur(0.5);
 #ifdef _DEBUG
 	_stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s_blurred.TIF"), argv[0]);
 	pImage->SaveAs(strNewFileName, SAVE_TIFF_LZW);

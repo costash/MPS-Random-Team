@@ -2,3 +2,6 @@
 *.ipch
 *.suo
 *~
+
+bam
+output

@@ -236,30 +236,30 @@ void NICK (Mat im, Mat output, int winx, int winy, double k)
 		for	(int i=0 ; i <= im.cols-winx; i++) {
 
 			m  = map_m.fget(i+wxh, j);
-    		B  = map_B.fget(i+wxh, j);
+			B  = map_B.fget(i+wxh, j);
 
-    		// Calculate the threshold
+			// Calculate the threshold
 			th = m + k * sqrt(B + m * m);
 
-    		thsurf.fset(i+wxh,j,th);
+			thsurf.fset(i+wxh,j,th);
 
-    		if (i==0) {
-        		// LEFT BORDER
-        		for (int i=0; i<=x_firstth; ++i)
-                	thsurf.fset(i,j,th);
+			if (i==0) {
+				// LEFT BORDER
+				for (int i=0; i<=x_firstth; ++i)
+					thsurf.fset(i,j,th);
 
-        		// LEFT-UPPER CORNER
-        		if (j==y_firstth)
-        			for (int u=0; u<y_firstth; ++u)
-        			for (int i=0; i<=x_firstth; ++i)
-        				thsurf.fset(i,u,th);
+				// LEFT-UPPER CORNER
+				if (j==y_firstth)
+					for (int u=0; u<y_firstth; ++u)
+					for (int i=0; i<=x_firstth; ++i)
+						thsurf.fset(i,u,th);
 
-        		// LEFT-LOWER CORNER
-        		if (j==y_lastth)
-        			for (int u=y_lastth+1; u<im.rows; ++u)
-        			for (int i=0; i<=x_firstth; ++i)
-        				thsurf.fset(i,u,th);
-    		}
+				// LEFT-LOWER CORNER
+				if (j==y_lastth)
+					for (int u=y_lastth+1; u<im.rows; ++u)
+					for (int i=0; i<=x_firstth; ++i)
+						thsurf.fset(i,u,th);
+			}
 
 			// UPPER BORDER
 			if (j==y_firstth)
@@ -274,9 +274,9 @@ void NICK (Mat im, Mat output, int winx, int winy, double k)
 
 		// RIGHT BORDER
 		for (int i=x_lastth; i<im.cols; ++i)
-        	thsurf.fset(i,j,th);
+			thsurf.fset(i,j,th);
 
-  		// RIGHT-UPPER CORNER
+		// RIGHT-UPPER CORNER
 		if (j==y_firstth)
 			for (int u=0; u<y_firstth; ++u)
 			for (int i=x_lastth; i<im.cols; ++i)
@@ -294,15 +294,15 @@ void NICK (Mat im, Mat output, int winx, int winy, double k)
 	for	(int y=0; y<im.rows; ++y) 
 	for	(int x=0; x<im.cols; ++x) 
 	{
-    	if (im.uget(x,y) >= thsurf.fget(x,y))
-    	{
-    		output.uset(x,y,255);
-    	}
-    	else
-    	{
-    	    output.uset(x,y,0);
-    	}
-    }
+		if (im.uget(x,y) >= thsurf.fget(x,y))
+		{
+			output.uset(x,y,255);
+		}
+		else
+		{
+			output.uset(x,y,0);
+		}
+	}
 }
 
 void do_NICK_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary)
