@@ -20,6 +20,7 @@ wstring TESSERACT(_T("..\\tesseract\\tesseract"));
 
 wstring ORIGINAL_IMG_DIR(_T("..\\images\\"));
 wstring ORIGINAL_OUTPUT_DIR(_T("..\\test\\tesseract\\"));
+wstring REFERENCE_TEXT_DIR(_T("..\\test\\reference\\"));
 
 wstring BAM_SOURCE_DIR(_T("..\\output\\"));
 wstring BAM_OUTPUT_DIR(_T("..\\test\\bam\\"));
@@ -34,7 +35,7 @@ int Test::runOCR(SOURCE source)
 	wstring IMG_DIR;
 	wstring OUTPUT_DIR;
 
-	if (source == ORIGNIAL_IMG) {
+	if (source == ORIGINAL_IMG) {
 		IMG_DIR = ORIGINAL_IMG_DIR;
 		OUTPUT_DIR = ORIGINAL_OUTPUT_DIR;
 	}
@@ -95,28 +96,30 @@ void Test::computeScore() {
 	map<string, int> dict;
 	map<string, int>::iterator it;
 
-	TCHAR original_filename[MAX_CMD_LINE];
+	TCHAR reference_filename[MAX_CMD_LINE];
 	TCHAR bam_filename[MAX_CMD_LINE];
 
-	_stprintf_s(original_filename, sizeof(original_filename) / sizeof(TCHAR),
-		_T("%s%s.txt"), ORIGINAL_OUTPUT_DIR.c_str(), _path.c_str());
+	_stprintf_s(reference_filename, sizeof(reference_filename) / sizeof(TCHAR),
+		_T("%s%s.txt"), REFERENCE_TEXT_DIR.c_str(), _path.c_str());
 
 	_stprintf_s(bam_filename, sizeof(bam_filename) / sizeof(TCHAR),
 		_T("%s%s.txt"), BAM_OUTPUT_DIR.c_str(), _path.c_str());
 
 
 	FILE *FO, *FB;
-	_wfopen_s(&FO, original_filename, _T("r"));
+	_wfopen_s(&FO, reference_filename, _T("r"));
 	_wfopen_s(&FB, bam_filename, _T("r"));
 
 	if (FO && FB) {
 		cout << "Computing image scores" << endl;
+		cout << "---------------------------------------------------------" << endl;
+		_ftprintf(stderr, _T("\tCompare %s with %s\n"), reference_filename, bam_filename);
 	}
 	else {
 		if (!FO)
-			cout << "File not found " << original_filename << endl;
+			_ftprintf(stderr, _T("\tFile not found: %s \n"), reference_filename);
 		if (!FB)
-			cout << "File not found " << bam_filename << endl;
+			_ftprintf(stderr, _T("\tFile not found: %s \n"), bam_filename);
 		return;
 	}
 	cout << "---------------------------------------------------------" << endl;
