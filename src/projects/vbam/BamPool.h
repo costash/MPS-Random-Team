@@ -30,13 +30,19 @@ public:
 	int Init(const TCHAR* vbamExecutableName);
 
 	void SpawnAll(const TCHAR* processingTimeout, const TCHAR* initTimeout);
-	void Vote();
+	void DummyVote();
+	void SmartVote( int num_samples );
+
+	static const int DEF_SAMPLE_COUNT = 4;
+
 
 private:
 	unsigned int composeTimeout(const TCHAR* processingTimeout,
 		const TCHAR* initTimeout);
 
 private:
+
+
 	std::map<std::wstring, std::unique_ptr<Bam>> _bams;
 	std::vector<std::wstring> _bamNames;
 	std::wstring _bamsFolder;

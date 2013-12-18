@@ -11,7 +11,7 @@
 #include "constants.h"
 
 int FileUtil::GetFilesInDir(const TCHAR* dirName, const TCHAR* extension,
-							vector<wstring>& fileNames)
+							std::vector<std::wstring>& fileNames)
 {
 	WIN32_FIND_DATAW findData;
 	HANDLE hFind;
