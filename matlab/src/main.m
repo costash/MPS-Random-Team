@@ -1,4 +1,4 @@
-function ret = main(fin, fout)
+function ret = main(fin, foutbw, foutconf)
 
 im = double(rgb2gray(imread(fin)));
 bwim = rtbam(im);
@@ -16,7 +16,7 @@ tags.Photometric = Tiff.Photometric.MinIsBlack;
 tags.PlanarConfiguration = Tiff.PlanarConfiguration.Chunky;
 tags.Software = 'MATLAB';
 
-t = Tiff(fout, 'w');
+t = Tiff(foutbw, 'w');
 t.setTag(tags)
 t.write(bwim);
 t.close();
