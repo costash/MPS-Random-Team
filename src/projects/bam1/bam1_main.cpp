@@ -35,7 +35,6 @@ void nosiecomp(Mat im, double k, int nscale, double mult, int norient, double so
 
 
 
-
 }
 
 Mat anisodiff(Mat im, int niter, double kappa, double lambda, int option) {
@@ -43,25 +42,48 @@ Mat anisodiff(Mat im, int niter, double kappa, double lambda, int option) {
 	Size sz = im.size();
 	Mat diff = im.clone();
 	for (size_t i = 0; i < niter; ++i) {
-		Mat diffl(sz.height+2,sz.width+2,CV_64FC1, Scalar(0.0));
+		Mat diffl(sz.height+2,sz.width+2,CV_32FC1, Scalar(0.0));
 		Mat tt = diffl(Range(1, sz.height+1), Range(1, sz.width+1)); //Will this actually work?
 		im.copyTo(tt);
-		Mat deltaN(sz, CV_64FC1); 
-		deltaN = diffl(Range(0,sz.height), Range(1,sz.width+1)).clone() -diff;
-		Mat deltaS(sz, CV_64FC1);
+		Mat delta(sz, CV_32FC1); 
+		Mat c(sz, CV_32FC1);
+		Mat temp(sz, CV_32FC1);
+		//Doing N
+		delta = diffl(Range(0,sz.height), Range(1,sz.width+1)).clone() -diff;
+		pow(-(delta/kappa),2,temp); exp(temp, c); 
+		diff+=lambda*c.mul(delta);
+
+		//Doing S
+		delta = diffl(Range(2,sz.height+2), Range(1,sz.width+1)).clone() -diff;
+		pow(-(delta/kappa),2,temp); exp(temp, c); 
+		diff+=lambda*c.mul(delta);
+		
+		//Doing E
+		delta = diffl(Range(1,sz.height+1), Range(2,sz.width+2)).clone() -diff;
+		pow(-(delta/kappa),2,temp); exp(temp, c); 
+		diff+=lambda*c.mul(delta);
+		
+		//Doing W
+		delta = diffl(Range(1,sz.height+1), Range(0,sz.width)).clone() -diff;
+		pow(-(delta/kappa),2,temp); exp(temp, c); 
+		diff+=lambda*c.mul(delta);
+		
+		/*
+		Mat deltaS(sz, CV_32FC1);
 		deltaS = diffl(Range(2,sz.height+2), Range(1,sz.width+1)).clone() - diff;
-		Mat deltaE(sz, CV_64FC1);
+		Mat deltaE(sz, CV_32FC1);
 		deltaE = diffl(Range(1,sz.height+1), Range(2,sz.width+2)).clone() - diff;
-		Mat deltaW(sz, CV_64FC1);
+		Mat deltaW(sz, CV_32FC1);
 		deltaW = diffl(Range(1,sz.height+1), Range(0,sz.width)).clone() - diff;
 
-		Mat temp(sz, CV_64FC1);
-		Mat cN(sz, CV_64FC1); pow(-(deltaN/kappa), 2, temp); exp(temp, cN);
-		Mat cS(sz, CV_64FC1); pow(-(deltaS/kappa), 2, temp); exp(temp, cS);
-		Mat cE(sz, CV_64FC1); pow(-(deltaE/kappa), 2, temp); exp(temp, cE);
-		Mat cW(sz, CV_64FC1); pow(-(deltaW/kappa), 2, temp); exp(temp, cW);
+		
+		Mat cN(sz, CV_32FC1); pow(-(deltaN/kappa), 2, temp); exp(temp, cN);
+		Mat cS(sz, CV_32FC1); pow(-(deltaS/kappa), 2, temp); exp(temp, cS);
+		Mat cE(sz, CV_32FC1); pow(-(deltaE/kappa), 2, temp); exp(temp, cE);
+		Mat cW(sz, CV_32FC1); pow(-(deltaW/kappa), 2, temp); exp(temp, cW);
 
 		diff += lambda*(cN.mul(deltaN)+ cS.mul(deltaS)+cE.mul(deltaE)+ cW.mul(deltaW));
+		*/
 	}
 	return diff;
 }
@@ -70,28 +92,30 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	BYTE* t = (BYTE*)calloc(intHeight*intWidth,sizeof(unsigned char));
 	for (int y = 0; y < intHeight; ++y)
 		for (int x = 0; x < intWidth; ++x)
-			t[y*intWidth+x] = pDataMatrixConfidence[y][x];
+			t[y*intWidth+x] = pDataMatrixGrayscale[y][x];
 	Mat te(intHeight, intWidth, CV_8UC1, t);
-	Mat te2(intHeight, intWidth, CV_8UC1);
-	Mat img(intHeight, intWidth, CV_64FC1);
-	Mat out_wolf(intHeight, intWidth, CV_8UC1);
-	Mat final(intHeight, intWidth, CV_8UC1, Scalar(255));
-	Mat out_savu(intHeight, intWidth, CV_8UC1);
-	Mat out2(intHeight, intWidth, CV_64FC1);
-	Mat out(intHeight, intWidth, CV_64FC1);
-	Mat temp(intHeight, intWidth, CV_64FC1);
+	//Mat te2(intHeight, intWidth, CV_8UC1);
+	Mat img(intHeight, intWidth, CV_32FC1);
+	//Mat out_wolf(intHeight, intWidth, CV_8UC1)
 	
-	Mat kern(15,15, CV_64FC1, Scalar((double)1./225));
-	//Mat kern(21,21, CV_64FC1, Scalar((double)1./441));
+	Mat kern(15,15, CV_32FC1, Scalar((double)1./225));
+	//Mat kern(21,21, CV_32FC1, Scalar((double)1./441));
 	double mx, mi;
 	minMaxLoc(te, &mi, &mx);
 	
-	te.convertTo(img, CV_64FC1, 1./mx);
+	te.convertTo(img, CV_32FC1, 1./mx);
 	
+	free(t); //te is unsafe to be used further
+
+	Mat final;
+	
+	Mat out2(intHeight, intWidth, CV_32FC1);
+	Mat out(intHeight, intWidth, CV_32FC1);
+	Mat temp(intHeight, intWidth, CV_32FC1);
 	//dilate(img, img, getStructuringElement(MORPH_CROSS, Size(3, 3)));
 	img = anisodiff(img, 5, 20, .2, 1);
 	//erode(img, img, getStructuringElement(MORPH_CROSS, Size(3, 3)));
-	///Mat kern2(11,11, CV_64FC1, Scalar(1./121));
+	///Mat kern2(11,11, CV_32FC1, Scalar(1./121));
 	//kern.at<float>(5,5) = 1;
 	//normalize(img,img);
 	filter2D(img, out, -1, kern);
@@ -101,16 +125,15 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	sqrt(out2, out2);
 	double M, R;
 	minMaxIdx(img, &M, &R);
-
+	Mat out_savu(intHeight, intWidth, CV_8UC1);
 	Mat thresh = out.mul(1+0.3*(out2/128-1));
-	compare(out*0.5 + 0.5*M+0.5*(out2 * (1/R)).mul(out-M), img, out_wolf, CMP_LE);
+	//compare(out*0.5 + 0.5*M+0.5*(out2 * (1/R)).mul(out-M), img, out_wolf, CMP_LE);
 	compare(thresh, img, out_savu, CMP_LE);
 	//erode(out_savu, out3, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
 	//dilate(out_savu, out_savu, getStructuringElement(MORPH_CROSS, Size(3, 3)));
 	//threshold(img, out,2,255, THRESH_BINARY|THRESH_OTSU);
 
-	free(t);
-	Mat save = out_wolf.clone();
+	
 	//Contour trying 1
 	/*
 	const int dx[] = {0, 0, 1, -1};
@@ -159,7 +182,7 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	for (int i = 0 ; i < final.rows; ++i)
 		for (int j = 0; j < final.cols; ++j) {
 			pImageBinary->Put1BPPPixel(j,i,final.at<bool>(i,j));
-			pDataMatrixConfidence[i][j] = abs(1-abs(thresh.at<double>(i,j)*255 - pDataMatrixConfidence[i][j]))*255;
+			//pDataMatrixConfidence[i][j] = abs(1-abs(thresh.at<double>(i,j)*255 - pDataMatrixConfidence[i][j]))*255;
 		}
 }
 

@@ -95,6 +95,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)FreeImage;$(SolutionDir)opencv\lib</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_core247d.lib;opencv_highgui247d.lib;opencv_imgproc247d.lib;opencv_photo247d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(IntDir)"
@@ -147,6 +148,7 @@ xcopy /y /D "$(SolutionDir)common\Color_Target.jpg" "$(OutDir)"</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opencv_core247.lib;opencv_highgui247.lib;opencv_imgproc247.lib;opencv_photo247.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)FreeImage;$(SolutionDir)opencv\lib</AdditionalLibraryDirectories>
+      <LargeAddressAware>true</LargeAddressAware>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /y /D "$(SolutionDir)FreeImage\*.dll" "$(OutDir)"
