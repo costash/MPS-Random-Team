@@ -204,7 +204,6 @@ void calcLocalStats (Mat &im, Mat &map_m, Mat &map_B, int winx, int winy) {
 /**********************************************************
  * code adapted from http://liris.cnrs.fr/christian.wolf/software/binarize/index.html
  * modified to perform NICK binarization
- * The binarization routine
  **********************************************************/
 void NICK (Mat im, Mat output, int winx, int winy, double k)
 {
@@ -326,6 +325,48 @@ void do_NICK_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYT
 }
 
 //===========================================================================
+
+double do_otsu_magic3(int x1, int x2, int y1, int y2, BYTE **a)
+{
+	int intWidth = x2 - x1 + 1;
+	int intHeight = y2 - y1 + 1;
+	BYTE* t = (BYTE*)calloc((x2 - x1 + 1) * (y2 - y1 + 1), sizeof(unsigned char));
+	for (int y = y1; y < y2; ++y)
+		for (int x = x1; x < x2; ++x) {
+			t[(y - y1 + 1)*intWidth+(x - x1 + 1)] = a[y][x];
+		}
+
+	Mat img(intHeight, intWidth, CV_8UC1, t);
+
+	Mat out(intHeight, intWidth, CV_64FC1);
+	double thresh = threshold(img, out, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+
+	free(t);
+
+	return thresh;
+	//free(t);
+}
+
+BYTE med(int x1, int x2, int y1, int y2, BYTE **a){
+	int i,j;
+	long s=0;
+	for(i=x1; i<x2; i++)
+		for(j=y1; j<y2; j++)
+			s+=a[j][i];
+	return (BYTE) (s/((x2 - x1 + 1) * (y2 - y1 + 1)));
+}
+
+void thresh(int x1, int x2, int y1, int y2, BYTE **a, int **matval){
+	//BYTE medval = med(x1,x2,y1,y2,a);
+	double medval = do_otsu_magic3(x1, x2, y1, y2, a);
+	//cout << "medval = " << medval << "\n";
+	for(int i=x1; i<x2; i++)
+		for(int j=y1; j<y2; j++)
+			if(a[j][i]>medval)
+				matval[j][i]++;
+}
+
+
 //===========================================================================
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -394,12 +435,46 @@ int _tmain(int argc, _TCHAR* argv[])
 		KImage *pImageBinary = new KImage(intWidth, intHeight, 1);
 		if (pImageBinary->BeginDirectAccess() && pImageConfidence->BeginDirectAccess() && (pDataMatrixConfidence = pImageConfidence->GetDataMatrix()) != NULL)
 		{
-			do_NICK_magic(intHeight, intWidth, pDataMatrixGrayscale, pDataMatrixConfidence, pImageBinary);
+			//do_NICK_magic(intHeight, intWidth, pDataMatrixGrayscale, pDataMatrixConfidence, pImageBinary);
 
-			// create 50-50 confidence img
-			for (int i = 0 ; i < intHeight; ++i)
-				for (int j = 0; j < intWidth; ++j)
-					pImageConfidence->Put8BPPPixel(j, i, 128);
+			//---------------------------------------------------
+			//Apply a threshold at half the grayscale range (0x00 is Full-Black, 0xFF is Full-White, 0x80 is the Middle-Gray)
+			//BYTE medval = med(0, intWidth, 0, intHeight, pDataMatrixGrayscale);
+			int **matval = (int **)malloc(intHeight * sizeof(int*));
+			for(int i = 0; i < intHeight; i++) matval[i] = (int *)calloc(intWidth , sizeof(int));
+			int count =80;
+			for(int ccount = 1; ccount<= count; ccount++)
+				for(int ci  = 1; ci<=ccount; ci++)
+					for(int cj = 1; cj<=ccount; cj++)
+						thresh((cj-1)*intWidth/ccount,cj*intWidth/ccount,(ci-1)*intHeight/ccount,ci*intHeight/ccount,pDataMatrixGrayscale,matval);
+
+
+            for (int y = intHeight - 1; y >= 0; y--)
+                for (int x = intWidth - 1; x >= 0; x--)
+                {
+                    //You may use this instead of the line below: 
+                    //    BYTE PixelAtXY = pImageGrayscale->Get8BPPPixel(x, y)
+                   // BYTE &PixelAtXY = pDataMatrixGrayscale[y][x];
+                  //if (PixelAtXY < medval)
+					if(matval[y][x] < count/2)
+                        //...if closer to black, set to black
+                        pImageBinary->Put1BPPPixel(x, y, false);
+                    else
+                        //...if closer to white, set to white
+                        pImageBinary->Put1BPPPixel(x, y, true);
+                }
+			for (int y = intHeight - 1; y >= 0; y--)
+                for (int x = intWidth - 1; x >= 0; x--)
+					pDataMatrixConfidence[y][x] = (BYTE) abs(matval[y][x] - (count/2));
+
+
+		//-----------------------------------------------------
+
+
+			//// create 50-50 confidence img
+			//for (int i = 0 ; i < intHeight; ++i)
+			//	for (int j = 0; j < intWidth; ++j)
+			//		pImageConfidence->Put8BPPPixel(j, i, 128);
 
 			//Close direct access
 			pImageBinary->EndDirectAccess();
