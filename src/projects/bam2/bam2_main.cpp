@@ -357,8 +357,8 @@ BYTE med(int x1, int x2, int y1, int y2, BYTE **a){
 }
 
 void thresh(int x1, int x2, int y1, int y2, BYTE **a, int **matval){
-	//BYTE medval = med(x1,x2,y1,y2,a);
-	double medval = do_otsu_magic3(x1, x2, y1, y2, a);
+	BYTE medval = med(x1,x2,y1,y2,a);
+	//double medval = do_otsu_magic3(x1, x2, y1, y2, a);
 	//cout << "medval = " << medval << "\n";
 	for(int i=x1; i<x2; i++)
 		for(int j=y1; j<y2; j++)
@@ -442,7 +442,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			//BYTE medval = med(0, intWidth, 0, intHeight, pDataMatrixGrayscale);
 			int **matval = (int **)malloc(intHeight * sizeof(int*));
 			for(int i = 0; i < intHeight; i++) matval[i] = (int *)calloc(intWidth , sizeof(int));
-			int count =80;
+			int count =150;
 			for(int ccount = 1; ccount<= count; ccount++)
 				for(int ci  = 1; ci<=ccount; ci++)
 					for(int cj = 1; cj<=ccount; cj++)
