@@ -16,14 +16,14 @@
 
 using namespace std;
 
-wstring TESSERACT(_T("..\\tesseract\\tesseract"));
+wstring TESSERACT(_T("tesseract\\tesseract"));
 
-wstring ORIGINAL_IMG_DIR(_T("..\\images\\"));
-wstring ORIGINAL_OUTPUT_DIR(_T("..\\test\\tesseract\\"));
-wstring REFERENCE_TEXT_DIR(_T("..\\test\\reference\\"));
+wstring ORIGINAL_IMG_DIR(_T("images\\"));
+wstring ORIGINAL_OUTPUT_DIR(_T("test\\tesseract\\"));
+wstring REFERENCE_TEXT_DIR(_T("test\\reference\\"));
 
-wstring BAM_SOURCE_DIR(_T("..\\output\\"));
-wstring BAM_OUTPUT_DIR(_T("..\\test\\bam\\"));
+wstring BAM_SOURCE_DIR(_T("output\\"));
+wstring BAM_OUTPUT_DIR(_T("test\\bam\\"));
 
 Test::Test(const wstring& path)
 	: _path(path)
@@ -46,12 +46,13 @@ int Test::runOCR(SOURCE source)
 
 	TCHAR commandLine[MAX_CMD_LINE];
 	_stprintf_s(commandLine, sizeof(commandLine) / sizeof(TCHAR),
-		_T("%s %s%s %s%s"), TESSERACT.c_str(),
+		_T("%s %s%s.tiff %s%s"), TESSERACT.c_str(),
 		IMG_DIR.c_str(), _path.c_str(),
 		OUTPUT_DIR.c_str(), _path.c_str());
 
-	if (_DEBUG)
+	#ifdef _DEBUG
 		_tprintf_s(_T("command: %s\n"), commandLine);
+	#endif
 
 	cout << "=========================================================" << endl;
 	cout << "Analysing images with TESSERACT" << endl;
