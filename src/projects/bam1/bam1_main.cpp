@@ -50,20 +50,53 @@ void do_magic2(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **
 //
 //}
 
+Mat anisodiff(Mat im, int niter, double kappa, double lambda, int option) {
+
+	Size sz = im.size();
+	Mat diff = im.clone();
+	for (size_t i = 0; i < niter; ++i) {
+		Mat diffl(sz.height+2,sz.width+2,CV_64FC1, Scalar(0.0));
+		Mat tt = diffl(Range(1, sz.height+1), Range(1, sz.width+1)); //Will this actually work?
+		im.copyTo(tt);
+		Mat deltaN(sz, CV_64FC1); 
+		deltaN = diffl(Range(0,sz.height), Range(1,sz.width+1)).clone() -diff;
+		Mat deltaS(sz, CV_64FC1);
+		deltaS = diffl(Range(2,sz.height+2), Range(1,sz.width+1)).clone() - diff;
+		Mat deltaE(sz, CV_64FC1);
+		deltaE = diffl(Range(1,sz.height+1), Range(2,sz.width+2)).clone() - diff;
+		Mat deltaW(sz, CV_64FC1);
+		deltaW = diffl(Range(1,sz.height+1), Range(0,sz.width)).clone() - diff;
+
+		Mat temp(sz, CV_64FC1);
+		Mat cN(sz, CV_64FC1); pow(-(deltaN/kappa), 2, temp); exp(temp, cN);
+		Mat cS(sz, CV_64FC1); pow(-(deltaS/kappa), 2, temp); exp(temp, cS);
+		Mat cE(sz, CV_64FC1); pow(-(deltaE/kappa), 2, temp); exp(temp, cE);
+		Mat cW(sz, CV_64FC1); pow(-(deltaW/kappa), 2, temp); exp(temp, cW);
+
+		diff += lambda*(cN.mul(deltaN)+ cS.mul(deltaS)+cE.mul(deltaE)+ cW.mul(deltaW));
+	}
+	return diff;
+}
+
 void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **pDataMatrixConfidence, KImage* pImageBinary) {
 	BYTE* t = (BYTE*)calloc(intHeight*intWidth,sizeof(unsigned char));
 	for (int y = 0; y < intHeight; ++y)
 		for (int x = 0; x < intWidth; ++x)
 			t[y*intWidth+x] = pDataMatrixConfidence[y][x];
 	Mat te(intHeight, intWidth, CV_8UC1, t);
-	Mat img(intHeight, intWidth, CV_32FC1);
-	Mat out3(intHeight, intWidth, CV_32FC1);
-	Mat out2(intHeight, intWidth, CV_32FC1);
-	Mat out(intHeight, intWidth, CV_32FC1);
-	Mat temp(intHeight, intWidth, CV_32FC1);
-	Mat kern(11,11, CV_32FC1, Scalar(1./121));
-	te.convertTo(img, CV_32FC1, 1./255);
-	///Mat kern2(11,11, CV_32FC1, Scalar(1./121));
+
+	Mat img(intHeight, intWidth, CV_64FC1);
+	Mat out3(intHeight, intWidth, CV_64FC1);
+	Mat out2(intHeight, intWidth, CV_64FC1);
+	Mat out(intHeight, intWidth, CV_64FC1);
+	Mat temp(intHeight, intWidth, CV_64FC1);
+	Mat kern(41,41, CV_64FC1, Scalar((double)1./1681));
+	double mx, mi;
+	minMaxLoc(te, &mi, &mx);
+	te.convertTo(img, CV_64FC1, 1./mx);
+
+	img = anisodiff(img, 5, 20, .2, 1);
+	///Mat kern2(11,11, CV_64FC1, Scalar(1./121));
 	//kern.at<float>(5,5) = 1;
 	//normalize(img,img);
 	filter2D(img, out, -1, kern);
@@ -112,7 +145,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 
 	//Apply a Gaussian Blur with small radius to remove obvious noise
-	pImage->GaussianBlur(0.5);
+	//pImage->GaussianBlur(0.5);
 #ifdef _DEBUG
 	_stprintf_s(strNewFileName, sizeof(strNewFileName) / sizeof(TCHAR), _T("%s_blurred.TIF"), argv[0]);
 	pImage->SaveAs(strNewFileName, SAVE_TIFF_LZW);

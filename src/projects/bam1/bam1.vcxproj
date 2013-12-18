@@ -93,7 +93,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)FreeImage;C:\OpenCV\build\x86\vc11\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)FreeImage;C:\opencv\build-mine\lib\Debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>opencv_calib3d247d.lib;opencv_contrib247d.lib;opencv_core247d.lib;opencv_features2d247d.lib;opencv_flann247d.lib;opencv_gpu247d.lib;opencv_highgui247d.lib;opencv_imgproc247d.lib;opencv_legacy247d.lib;opencv_ml247d.lib;opencv_nonfree247d.lib;opencv_objdetect247d.lib;opencv_ocl247d.lib;opencv_photo247d.lib;opencv_stitching247d.lib;opencv_superres247d.lib;opencv_ts247d.lib;opencv_video247d.lib;opencv_videostab247d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
