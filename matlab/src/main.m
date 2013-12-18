@@ -1,7 +1,10 @@
 function ret = main(fin, foutbw, foutconf)
 
 im = double(rgb2gray(imread(fin)));
-bwim = rtbam(im);
+[bwim, conf] = rtbam(im);
+
+imshow(im, []);
+figure, imshow(conf, []);
 
 % imwrite(im, fout);
 
@@ -19,6 +22,13 @@ tags.Software = 'MATLAB';
 t = Tiff(foutbw, 'w');
 t.setTag(tags)
 t.write(bwim);
+t.close();
+
+tags.Compression = Tiff.Compression.LZW;
+tags.BitsPerSample = 8;
+t = Tiff(foutconf, 'w');
+t.setTag(tags);
+t.write(conf);
 t.close();
 
 % imshow(imread(fout), []);

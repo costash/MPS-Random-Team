@@ -1,4 +1,4 @@
-function bw = rtbam(im)
+function [bw, conf] = rtbam(im)
 
 
 
@@ -49,7 +49,13 @@ local_std = sqrt(imfilter(im .^ 2, filt, 'symmetric'));
 % im_sauv = im >= local_mean.*(1 + 0.5 * ( local_std/128 -1));
 R = max(im(:));
 M = min(im(:));
-im_wolf = im >= (1-0.5)*local_mean+0.5*M+0.5*(local_std/R).*(local_mean-M);
+tresh_wolf = (1-0.5)*local_mean+0.5*M+0.5*(local_std/R).*(local_mean-M);
+diff_wolf = im - tresh_wolf;
+
+
+bw = logical(diff_wolf >= 0);
+
+conf = uint8(abs(diff_wolf) * 255);
  
 % im_nick = im >= local_mean - 0.2 * new_local_std;
 
@@ -63,7 +69,7 @@ im_wolf = im >= (1-0.5)*local_mean+0.5*M+0.5*(local_std/R).*(local_mean-M);
 % linkaxes(ax, 'xy');si
 
 
-bw = logical(im_wolf);
+
 
 % figure, imshow(bw);
 
