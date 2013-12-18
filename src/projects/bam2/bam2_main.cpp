@@ -6,9 +6,6 @@
 //===========================================================================
 //===========================================================================
 
-#ifndef _DEBUG
-	#define _DEBUG 0
-#endif
 
 //===========================================================================
 //===========================================================================
@@ -108,9 +105,9 @@ void do_otsu_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYT
 {
 	BYTE* histogram = get_histogram(intHeight, intWidth, pDataMatrixGrayscale);
 	int threshold = get_otsu_threshold(histogram, intHeight * intWidth);
-
+#ifdef _DEBUG
 	cout << "otsu threshold = " << threshold;
-
+#endif
 	for (int i = 0; i < intHeight; i++)
 		for (int j = 0; j < intWidth; j++)
 			pImageBinary->Put1BPPPixel(j, i, pDataMatrixGrayscale[i][j] > threshold ? true : false);
