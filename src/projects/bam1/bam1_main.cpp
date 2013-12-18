@@ -90,7 +90,8 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	Mat out2(intHeight, intWidth, CV_64FC1);
 	Mat out(intHeight, intWidth, CV_64FC1);
 	Mat temp(intHeight, intWidth, CV_64FC1);
-	Mat kern(41,41, CV_64FC1, Scalar((double)1./1681));
+	//Mat kern(41,41, CV_64FC1, Scalar((double)1./1681));
+	Mat kern(21,21, CV_64FC1, Scalar((double)1./441));
 	double mx, mi;
 	minMaxLoc(te, &mi, &mx);
 	te.convertTo(img, CV_64FC1, 1./mx);
@@ -109,10 +110,13 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	compare(out*0.5 + 0.5*M+0.5*(out2 * (1/R)).mul(out-M), img, out3, CMP_LE);
 
 	//threshold(img, out,2,255, THRESH_BINARY|THRESH_OTSU);
-	namedWindow("Display Window", CV_WINDOW_AUTOSIZE);
+	/*namedWindow("Display Window", CV_WINDOW_AUTOSIZE);
 	imshow("Display Window", out3);
-	waitKey(0);
+	waitKey(0);*/
 	free(t);
+	for (int i = 0 ; i < out3.rows; ++i)
+		for (int j = 0; j < out3.cols; ++j)
+			pImageBinary->Put1BPPPixel(j,i,out3.at<bool>(i,j));
 }
 
 
