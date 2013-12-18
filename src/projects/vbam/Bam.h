@@ -14,6 +14,7 @@
 //===========================================================================
 #include "Direct_Access_Image.h"
 
+#include <Matrix.h>
 #include <string>
 
 // Class that holds the name of a BAM executable and can run it multiple
@@ -24,19 +25,17 @@ public:
 	Bam(const std::wstring& path, const std::wstring& executableName);
 
 	int Run(const std::wstring& inputImageName, const unsigned int timeout);
+	int LastRunStatus();
 
-	const std::wstring& ExecutableName();
-	
 	enum LastRunStatus {
 		NOT_EXECUTED = -1,
 		EXECUTED_SUCCESSFULLY = 0,
 		EXECUTED_WITH_ERROR = 1
 	};
 
-	int LastRunStatus();
-
-	const std::wstring& LastRunOutputImageName();
-	const std::wstring& LastRunConfidenceFileName();
+	const std::wstring& ExecutableName();
+	const std::wstring& ImagePath();
+	const std::wstring& ConfPath();
 
 private:
 	void createFullPath();
@@ -46,8 +45,8 @@ private:
 	std::wstring _fullPath;
 	std::wstring _exeName;
 	std::wstring _path;
-	std::wstring _lastRunOutputImageName;
-	std::wstring _lastRunConfidenceFileName;
+	std::wstring _ImagePath;
+	std::wstring _ConfPath;
 	int _lastRunStatus;
 };
 
