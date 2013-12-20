@@ -1,4 +1,5 @@
 $BAMS = @("bam1.exe", "bam2.exe", "bam3.exe", "bam4.exe", "bam5.exe");
+$VBAMS = @("vbam1.exe", "vbam2.exe");
 $TEST_IMAGES = @(
 	"doom.jpg", 
 	"degraded.png", 
@@ -77,7 +78,29 @@ if ($mode -eq 5) {
 ##------------------------------------------------------------------------------
 ## Get BAM ID if running mode is BAM
 
+if ($mode -eq 0) {
+	echo "";
+	echo "Select VBAM:";
+	for ($i=0; $i -lt $VBAMS.length; $i++) {
+		$option = "    " + $i + ") " + $VBAMS[$i];
+		echo "$option";
+	}
+
+	[int]$vbam_id = read-host "Insert VBAM ID: ";
+}
+
+
+##------------------------------------------------------------------------------
+## Get BAM ID if running mode is BAM
+
 if ($mode -eq 1) {
+	echo "";
+	echo "Select BAM:";
+	for ($i=0; $i -lt $BAMS.length; $i++) {
+		$option = "    " + $i + ") " + $BAMS[$i];
+		echo "$option";
+	}
+
 	[int]$bam_id = read-host "Insert BAM ID: ";
 }
 
@@ -100,24 +123,24 @@ echo "";
 ## Functions
 
 function getBAMCommand($IMAGE_ID){
-	$command = ".\bam\" +  $BAMS[$bam_id - 1] + " .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\" + $OUT_IMAGES[$IMAGE_ID] + ".tiff .\output\" + $OUT_IMAGES[$IMAGE_ID] + "_conf.tiff";
+	$command = ".\bam\" +  $BAMS[$bam_id] + " .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\" + $OUT_IMAGES[$IMAGE_ID] + ".tiff .\output\" + $OUT_IMAGES[$IMAGE_ID] + "_conf.tiff";
     return $command;
 }
 
 function getVBAMCommand($IMAGE_ID) {
-	$command = ".\bam\vbam\vbam.exe 100 1000 .\bam .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\ " + ".\output\" + $OUT_IMAGES[$IMAGE_ID];
+	$command = ".\bam\vbam\" +  $VBAMS[$vbam_id] +" 100 1000 .\bam .\images\" + $TEST_IMAGES[$IMAGE_ID] + " .\output\ " + ".\output\" + $OUT_IMAGES[$IMAGE_ID];
     return $command;
 }
 
 function RunCommand($image_id) {
 	if ($mode -eq 0) {
-		echo ("RUNNING VBAM on " + $TEST_IMAGES[$image_id]);
+		echo ("RUNNING " + $VBAMS[$vbam_id] + " on " + $TEST_IMAGES[$image_id]);
 		$command = getVBAMCommand($image_id);
 		iex $command;
 	}
 
 	if ($mode -eq 1) {
-		echo ("RUNNING BAM on " + $TEST_IMAGES[$image_id]);
+		echo ("RUNNING " + $BAMS[$bam_id] + " on " + $TEST_IMAGES[$image_id]);
 		$command = getBAMCommand($image_id);
 		iex $command;
 		return;
@@ -129,7 +152,7 @@ function RunCommand($image_id) {
 }
 
 function RunTest($test_id) {
-	$command = ".\src\Debug\test.exe " + $OUT_IMAGES[$test_id];
+	$command = ".\test\test.exe " + $OUT_IMAGES[$test_id];
 	iex $command;
 }
 
