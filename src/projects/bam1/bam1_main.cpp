@@ -178,11 +178,11 @@ void do_magic(int intHeight, int intWidth, BYTE **pDataMatrixGrayscale, BYTE **p
 	imshow("Display Window", final);
 	waitKey(0);
 #endif
-
+	absdiff(thresh, img, thresh);
 	for (int i = 0 ; i < final.rows; ++i)
 		for (int j = 0; j < final.cols; ++j) {
 			pImageBinary->Put1BPPPixel(j,i,final.at<bool>(i,j));
-			//pDataMatrixConfidence[i][j] = abs(1-abs(thresh.at<double>(i,j)*255 - pDataMatrixConfidence[i][j]))*255;
+			pDataMatrixConfidence[i][j] = (1-thresh.at<float>(i,j)*255);
 		}
 }
 
