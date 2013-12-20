@@ -35,8 +35,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	pool.Init(argv[0]);
 	pool.SpawnAll(argv[1], argv[2]);
 	
-//	pool.SmartVote( 1 );
-	pool.DummyVote();
+	pool.SmartVote( 8 );
+//	pool.DummyVote();
 
 	// Return with success
 	return VBAM_EXIT::SUCCESS;
